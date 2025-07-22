@@ -741,7 +741,7 @@ export function Home() {
           borderWidth: 1,
           borderColor: theme.tableBorder,
         }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View key="legend-income" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{
               width: 12,
               height: 12,
@@ -750,7 +750,7 @@ export function Home() {
             }} />
             <Text style={{ fontSize: 11, color: theme.pageText }}>Income</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View key="legend-expenses" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{
               width: 12,
               height: 12,
@@ -759,7 +759,7 @@ export function Home() {
             }} />
             <Text style={{ fontSize: 11, color: theme.pageText }}>Expenses</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View key="legend-savings" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{
               width: 12,
               height: 12,
