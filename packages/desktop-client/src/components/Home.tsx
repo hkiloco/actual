@@ -347,16 +347,6 @@ export function Home() {
       theme.pageBackground?.includes('dark');
 
     return {
-      title: {
-        text: 'Income Flow Analysis',
-        left: 'center',
-        top: '2%',
-        textStyle: {
-          color: theme.pageText,
-          fontSize: 16,
-          fontWeight: 'bold',
-        },
-      },
       tooltip: {
         trigger: 'item',
         triggerOn: 'mousemove',
