@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #1f2937;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            margin-bottom: 32px;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .year-badge {
+            background-color: #2563EB;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .summary-cards {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .summary-card {
+            flex: 1;
+            padding: 24px;
+            border-radius: 12px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            min-height: 120px;
+        }
+        
+        .card-income { background-color: #10B981; }
+        .card-expenses { background-color: #F59E0B; }
+        .card-net { background-color: #3B82F6; }
+        .card-balance { background-color: #8B5CF6; }
+        
+        .card-decorative {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 40px;
+        }
+        
+        .card-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .card-amount {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .card-percentage {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 450px;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-controls {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 10;
+        }
+        
+        .export-btn {
+            padding: 8px 12px;
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #374151;
+            cursor: pointer;
+        }
+        
+        .export-btn:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .chart-legend {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            display: flex;
+            gap: 16px;
+            background-color: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .legend-text {
+            font-size: 11px;
+            color: #374151;
+        }
+        
+        .income-color { background-color: #10B981; }
+        .expenses-color { background-color: #F59E0B; }
+        .savings-color { background-color: #8B5CF6; }
+        
+        #chart {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="year-badge">2024</div>
+                <div class="title">Financial Dashboard Demo</div>
+            </div>
+            <div class="subtitle">Showing demo data from all accounts - All time</div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card card-income">
+                <div class="card-decorative">
+                    <svg width="60" height="40" viewBox="0 0 60 40">
+                        <path d="M0,20 Q15,10 30,20 T60,20" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/>
+                        <path d="M0,30 Q20,15 40,30 T60,30" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none"/>
+                    </svg>
+                </div>
+                <div class="card-label">Income</div>
+                <div class="card-amount">£4,550</div>
+            </div>
+            
+            <div class="summary-card card-expenses">
+                <div class="card-decorative">
+                    <svg width="60" height="40" viewBox="0 0 60 40">
+                        <path d="M0,20 Q15,10 30,20 T60,20" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/>
+                        <path d="M0,30 Q20,15 40,30 T60,30" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none"/>
+                    </svg>
+                </div>
+                <div class="card-label">Expenses</div>
+                <div class="card-amount">£980</div>
+            </div>
+            
+            <div class="summary-card card-net">
+                <div class="card-decorative">
+                    <svg width="60" height="40" viewBox="0 0 60 40">
+                        <path d="M0,20 Q15,10 30,20 T60,20" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/>
+                        <path d="M0,30 Q20,15 40,30 T60,30" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none"/>
+                    </svg>
+                </div>
+                <div class="card-label">Net Income</div>
+                <div class="card-amount">£3,570</div>
+                <div class="card-percentage">78.5%</div>
+            </div>
+            
+            <div class="summary-card card-balance">
+                <div class="card-decorative">
+                    <svg width="60" height="40" viewBox="0 0 60 40">
+                        <path d="M0,20 Q15,10 30,20 T60,20" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/>
+                        <path d="M0,30 Q20,15 40,30 T60,30" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none"/>
+                    </svg>
+                </div>
+                <div class="card-label">Total Balance</div>
+                <div class="card-amount">£17,500</div>
+            </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="chart-container">
+            <div class="chart-controls">
+                <button class="export-btn" onclick="exportChart()">Export PNG</button>
+            </div>
+            
+            <div id="chart"></div>
+            
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-color income-color"></div>
+                    <div class="legend-text">Income</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color expenses-color"></div>
+                    <div class="legend-text">Expenses</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color savings-color"></div>
+                    <div class="legend-text">Savings</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the chart
+        var chartDom = document.getElementById('chart');
+        var myChart = echarts.init(chartDom);
+
+        // Demo data
+        var chartOption = {
+            title: {
+                text: 'Income Flow Analysis',
+                left: 'center',
+                top: '2%',
+                textStyle: {
+                    color: '#1f2937',
+                    fontSize: 16,
+                    fontWeight: 'bold'
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                triggerOn: 'mousemove',
+                backgroundColor: '#FFFFFF',
+                borderColor: '#E5E7EB',
+                borderWidth: 1,
+                borderRadius: 8,
+                textStyle: {
+                    color: '#1F2937',
+                    fontSize: 12
+                },
+                padding: [8, 12],
+                formatter: function(params) {
+                    if (params.dataType === 'edge') {
+                        var totalIncome = 455000; // £4,550 in pence
+                        var percentage = ((params.data.value / totalIncome) * 100).toFixed(1);
+                        return '<div style="font-weight: bold; margin-bottom: 4px;">' + 
+                               params.data.source + ' → ' + params.data.target + '</div>' +
+                               '<div>Amount: £' + (params.data.value / 100).toFixed(0) + '</div>' +
+                               '<div>Percentage: ' + percentage + '%</div>';
+                    } else {
+                        return '<div style="font-weight: bold; margin-bottom: 4px;">' + params.name + '</div>' +
+                               '<div>Category: ' + (params.data.category || 'N/A') + '</div>';
+                    }
+                }
+            },
+            animation: true,
+            animationDuration: 1500,
+            animationEasing: 'cubicInOut',
+            series: [{
+                type: 'sankey',
+                layout: 'none',
+                emphasis: {
+                    focus: 'adjacency',
+                    lineStyle: {
+                        opacity: 0.9
+                    }
+                },
+                blur: {
+                    lineStyle: {
+                        opacity: 0.1
+                    },
+                    label: {
+                        opacity: 0.3
+                    }
+                },
+                data: [
+                    { name: 'Salary (Income)', category: 'income' },
+                    { name: 'Freelance (Income)', category: 'income' },
+                    { name: 'Investments (Income)', category: 'income' },
+                    { name: 'Total Income', category: 'flow' },
+                    { name: 'Groceries', category: 'expense' },
+                    { name: 'Utilities', category: 'expense' },
+                    { name: 'Transport', category: 'expense' },
+                    { name: 'Entertainment', category: 'expense' },
+                    { name: 'Dining Out', category: 'expense' },
+                    { name: 'Net Savings', category: 'savings' }
+                ].map(function(node, index) {
+                    return {
+                        name: node.name,
+                        category: node.category,
+                        id: 'node-' + index,
+                        itemStyle: {
+                            color: node.category === 'income' ? '#10B981' :
+                                   node.category === 'flow' ? '#6366F1' :
+                                   node.category === 'savings' ? '#8B5CF6' :
+                                   '#F59E0B',
+                            borderColor: '#E5E7EB',
+                            borderWidth: 1
+                        },
+                        label: {
+                            color: '#1f2937',
+                            fontWeight: 'bold',
+                            fontSize: 11,
+                            formatter: function(params) {
+                                return params.name.length > 12 ? params.name.slice(0, 12) + '...' : params.name;
+                            }
+                        }
+                    };
+                }),
+                links: [
+                    { source: 'Salary (Income)', target: 'Total Income', value: 350000 },
+                    { source: 'Freelance (Income)', target: 'Total Income', value: 80000 },
+                    { source: 'Investments (Income)', target: 'Total Income', value: 25000 },
+                    { source: 'Total Income', target: 'Groceries', value: 45000 },
+                    { source: 'Total Income', target: 'Utilities', value: 18000 },
+                    { source: 'Total Income', target: 'Transport', value: 12000 },
+                    { source: 'Total Income', target: 'Entertainment', value: 8000 },
+                    { source: 'Total Income', target: 'Dining Out', value: 15000 },
+                    { source: 'Total Income', target: 'Net Savings', value: 357000 }
+                ].map(function(link, index) {
+                    return {
+                        source: link.source,
+                        target: link.target,
+                        value: link.value,
+                        id: 'link-' + index,
+                        lineStyle: {
+                            color: 'source',
+                            opacity: 0.6,
+                            curveness: 0.5
+                        },
+                        emphasis: {
+                            lineStyle: {
+                                opacity: 0.8,
+                                width: 4
+                            }
+                        }
+                    };
+                }),
+                lineStyle: {
+                    curveness: 0.5
+                },
+                label: {
+                    position: 'right',
+                    formatter: '{b}',
+                    color: '#1f2937',
+                    fontSize: 11
+                },
+                left: '3%',
+                right: '3%',
+                top: '12%',
+                bottom: '8%',
+                nodeWidth: 20,
+                nodeGap: 8,
+                draggable: false,
+                focusNodeAdjacency: 'allEdges'
+            }],
+            toolbox: {
+                show: true,
+                feature: {
+                    saveAsImage: {
+                        show: true,
+                        title: 'Export as PNG',
+                        backgroundColor: '#ffffff',
+                        pixelRatio: 2,
+                        name: 'income-flow-analysis'
+                    },
+                    restore: {
+                        show: true,
+                        title: 'Reset View'
+                    }
+                },
+                right: '3%',
+                top: '3%',
+                iconStyle: {
+                    borderColor: '#1f2937',
+                    color: 'transparent'
+                },
+                emphasis: {
+                    iconStyle: {
+                        borderColor: '#3B82F6',
+                        color: '#3B82F6'
+                    }
+                }
+            },
+            backgroundColor: 'transparent',
+            textStyle: {
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+            }
+        };
+
+        // Set the chart option
+        myChart.setOption(chartOption);
+
+        // Export functionality
+        function exportChart() {
+            var dataURL = myChart.getDataURL({
+                type: 'png',
+                pixelRatio: 2,
+                backgroundColor: '#ffffff'
+            });
+            
+            var link = document.createElement('a');
+            link.download = 'income-flow-analysis.png';
+            link.href = dataURL;
+            link.click();
+        }
+
+        // Responsive chart
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    </script>
+</body>
+</html>
