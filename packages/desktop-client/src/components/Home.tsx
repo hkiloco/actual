@@ -486,7 +486,7 @@ export function Home() {
             fontSize: 11,
           },
           left: '3%',
-          right: '3%',
+          right: '20%',
           top: '5%',
           bottom: '8%',
           nodeWidth: 15,
