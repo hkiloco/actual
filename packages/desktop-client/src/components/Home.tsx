@@ -414,7 +414,7 @@ export function Home() {
           },
           left: '3%',
           right: '3%',
-          top: '12%',
+          top: '5%',
           bottom: '8%',
           nodeWidth: 20,
           nodeGap: 8,
