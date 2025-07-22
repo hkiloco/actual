@@ -11,14 +11,10 @@ import { Select } from '@actual-app/components/select';
 import { SvgCalendar3 } from '@actual-app/components/icons/v2';
 
 import * as monthUtils from 'loot-core/shared/months';
-import { q } from 'loot-core/shared/query';
-import { type AccountEntity } from 'loot-core/types/models';
 
 import { useAccounts } from '@desktop-client/hooks/useAccounts';
 import { useCategories } from '@desktop-client/hooks/useCategories';
-import { useSpreadsheet } from '@desktop-client/hooks/useSpreadsheet';
 import { useSyncedPref } from '@desktop-client/hooks/useSyncedPref';
-import { useQuery } from '@desktop-client/hooks/useQuery';
 
 export function Home() {
   const { t } = useTranslation();
