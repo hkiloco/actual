@@ -435,8 +435,20 @@ export function Home() {
               borderColor: isDarkTheme ? '#374151' : '#FFFFFF',
             }
           })),
-          links: sankeyData.links.map(link => ({
+          links: sankeyData.links.map((link, index) => ({
             ...link,
+            lineStyle: {
+              color: 'source',
+              opacity: 0.8,
+              curveness: 0.5,
+              width: Math.max(3, Math.sqrt(link.value / 1000)) // Dynamic width based on value
+            },
+            emphasis: {
+              lineStyle: {
+                opacity: 1,
+                width: Math.max(5, Math.sqrt(link.value / 800))
+              }
+            },
             label: {
               show: true,
               position: 'middle',
@@ -445,12 +457,14 @@ export function Home() {
                 const percentage = ((params.data.value / totalIncome) * 100).toFixed(1);
                 return `${percentage}%`;
               },
-              color: theme.pageText,
-              fontSize: 10,
+              color: isDarkTheme ? '#FFFFFF' : '#1F2937',
+              fontSize: 11,
               fontWeight: 'bold',
-              backgroundColor: isDarkTheme ? 'rgba(55, 65, 81, 0.8)' : 'rgba(255, 255, 255, 0.8)',
-              padding: [2, 4],
-              borderRadius: 3
+              backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.9)',
+              padding: [3, 6],
+              borderRadius: 4,
+              borderWidth: 1,
+              borderColor: isDarkTheme ? '#374151' : '#E5E7EB'
             }
           })),
           lineStyle: {
