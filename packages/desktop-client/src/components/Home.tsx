@@ -181,7 +181,7 @@ export function Home() {
       .slice(0, 5);
 
     topIncomeCategories.forEach(([categoryId, amount]) => {
-      const category = categories.find(c => c.id === categoryId);
+      const category = activeCategories.find(c => c.id === categoryId);
       if (category && category.name && category.name.trim()) {
         const uniqueName = `${category.name.trim()} (Income)`;
         // Ensure unique name by checking if it already exists
@@ -213,7 +213,7 @@ export function Home() {
       .slice(0, 10);
 
     topExpenseCategories.forEach(([categoryId, amount]) => {
-      const category = categories.find(c => c.id === categoryId);
+      const category = activeCategories.find(c => c.id === categoryId);
       if (category && category.name && category.name.trim()) {
         const baseName = category.name.trim();
         // Ensure unique name by checking if it already exists
@@ -236,7 +236,7 @@ export function Home() {
 
     // Create links from income categories to total income
     topIncomeCategories.forEach(([categoryId, amount]) => {
-      const category = categories.find(c => c.id === categoryId);
+      const category = activeCategories.find(c => c.id === categoryId);
       if (category && category.name && category.name.trim()) {
         // Find the actual node name that was created
         const nodeEntry = Array.from(nodes.entries()).find(
@@ -256,7 +256,7 @@ export function Home() {
 
     // Create links from total income to expense categories
     topExpenseCategories.forEach(([categoryId, amount]) => {
-      const category = categories.find(c => c.id === categoryId);
+      const category = activeCategories.find(c => c.id === categoryId);
       if (category && category.name && category.name.trim()) {
         // Find the actual node name that was created
         const nodeEntry = Array.from(nodes.entries()).find(
