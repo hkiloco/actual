@@ -44,7 +44,7 @@ import { useSelector, useDispatch } from '@desktop-client/redux';
 import { getIsOutdated, getLatestVersion } from '@desktop-client/util/versions';
 
 function NarrowNotSupported({
-  redirectTo = '/budget',
+  redirectTo = '/home',
   children,
 }: {
   redirectTo?: string;
@@ -60,7 +60,7 @@ function NarrowNotSupported({
   return isNarrowWidth ? null : children;
 }
 
-function WideNotSupported({ children, redirectTo = '/budget' }) {
+function WideNotSupported({ children, redirectTo = '/home' }) {
   const { isNarrowWidth } = useResponsive();
   const navigate = useNavigate();
   useEffect(() => {
