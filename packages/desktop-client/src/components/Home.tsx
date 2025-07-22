@@ -12,13 +12,13 @@ export function Home() {
   const chartRef = useRef<ReactECharts>(null);
 
   // Currency formatting function
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = useCallback((amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'EUR',
       minimumFractionDigits: 0,
     }).format(amount);
-  };
+  }, []);
 
   // Mock data - in a real implementation, this would come from your data hooks
   const summaryData = {
