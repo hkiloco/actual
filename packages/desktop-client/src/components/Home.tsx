@@ -466,7 +466,7 @@ export function Home() {
                 const percentage = ((params.data.value / totalIncome) * 100).toFixed(1);
                 return `${percentage}%`;
               },
-              color: isDarkTheme ? '#FFFFFF' : '#1F2937',
+              color: '#FFFFFF',
               fontSize: 11,
               fontWeight: 'bold',
               backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.9)',
