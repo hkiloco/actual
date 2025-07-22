@@ -30,6 +30,10 @@ function createBackendWorker() {
 
   if (window.SharedArrayBuffer) {
     localStorage.removeItem('SharedArrayBufferOverride');
+  } else {
+    // Auto-enable override in cloud environments where SharedArrayBuffer isn't available
+    console.warn('SharedArrayBuffer not available, enabling fallback mode');
+    localStorage.setItem('SharedArrayBufferOverride', 'true');
   }
 
   worker.postMessage({
