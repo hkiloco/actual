@@ -35,13 +35,13 @@ export function Home() {
 
   // Date range options
   const dateRangeOptions = [
-    { value: 'This month', label: t('This month') },
-    { value: 'Last month', label: t('Last month') },
-    { value: 'Last 3 months', label: t('Last 3 months') },
-    { value: 'Last 6 months', label: t('Last 6 months') },
-    { value: 'Last 12 months', label: t('Last 12 months') },
-    { value: 'This year', label: t('This year') },
-    { value: 'Last year', label: t('Last year') },
+    { value: 'This month', label: t('This month'), key: 'this-month' },
+    { value: 'Last month', label: t('Last month'), key: 'last-month' },
+    { value: 'Last 3 months', label: t('Last 3 months'), key: 'last-3-months' },
+    { value: 'Last 6 months', label: t('Last 6 months'), key: 'last-6-months' },
+    { value: 'Last 12 months', label: t('Last 12 months'), key: 'last-12-months' },
+    { value: 'This year', label: t('This year'), key: 'this-year' },
+    { value: 'Last year', label: t('Last year'), key: 'last-year' },
   ];
 
   // Calculate date range based on selection
