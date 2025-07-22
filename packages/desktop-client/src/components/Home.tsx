@@ -620,16 +620,19 @@ export function Home() {
         opacity: isLoading ? 0.5 : 1,
       }}>
         <SummaryCard
+          key="income-card"
           amount={summaryData.income.amount}
           label={summaryData.income.label}
           color={summaryData.income.color}
         />
         <SummaryCard
+          key="expenses-card"
           amount={summaryData.expenses.amount}
           label={summaryData.expenses.label}
           color={summaryData.expenses.color}
         />
         <SummaryCard
+          key="net-income-card"
           amount={summaryData.netIncome.amount}
           label={summaryData.netIncome.label}
           color={summaryData.netIncome.color}
@@ -639,6 +642,7 @@ export function Home() {
           }
         />
         <SummaryCard
+          key="total-balance-card"
           amount={summaryData.totalBalance.amount}
           label={summaryData.totalBalance.label}
           color={summaryData.totalBalance.color}
