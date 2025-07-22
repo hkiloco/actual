@@ -329,6 +329,7 @@ export function FinancesApp() {
             </View>
 
             <Routes>
+              <Route path="/home" element={<MobileNavTabs />} />
               <Route path="/budget" element={<MobileNavTabs />} />
               <Route path="/accounts" element={<MobileNavTabs />} />
               <Route path="/settings" element={<MobileNavTabs />} />
