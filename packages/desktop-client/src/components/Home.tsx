@@ -11,6 +11,8 @@ import { Button } from '@actual-app/components/button';
 import { useAccounts } from '@desktop-client/hooks/useAccounts';
 import { useCategories } from '@desktop-client/hooks/useCategories';
 import { useSyncedPref } from '@desktop-client/hooks/useSyncedPref';
+import { useTransactions } from '@desktop-client/hooks/useTransactions';
+import { q } from '@loot-core/shared/query';
 
 export function Home() {
   const { t } = useTranslation();
