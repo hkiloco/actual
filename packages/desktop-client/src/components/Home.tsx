@@ -181,9 +181,16 @@ export function Home() {
 
     topIncomeCategories.forEach(([categoryId, amount]) => {
       const category = categories.find(c => c.id === categoryId);
-      if (category && category.name) {
-        const uniqueName = `${category.name} (Income)`;
-        nodes.set(uniqueName, { name: uniqueName, category: 'income', id: categoryId });
+      if (category && category.name && category.name.trim()) {
+        const uniqueName = `${category.name.trim()} (Income)`;
+        // Ensure unique name by checking if it already exists
+        let finalName = uniqueName;
+        let counter = 1;
+        while (nodes.has(finalName)) {
+          finalName = `${uniqueName} ${counter}`;
+          counter++;
+        }
+        nodes.set(finalName, { name: finalName, category: 'income', id: `income-${categoryId}` });
       }
     });
 
@@ -206,9 +213,16 @@ export function Home() {
 
     topExpenseCategories.forEach(([categoryId, amount]) => {
       const category = categories.find(c => c.id === categoryId);
-      if (category && category.name) {
-        const uniqueName = category.name;
-        nodes.set(uniqueName, { name: uniqueName, category: 'expense', id: categoryId });
+      if (category && category.name && category.name.trim()) {
+        const baseName = category.name.trim();
+        // Ensure unique name by checking if it already exists
+        let uniqueName = baseName;
+        let counter = 1;
+        while (nodes.has(uniqueName)) {
+          uniqueName = `${baseName} ${counter}`;
+          counter++;
+        }
+        nodes.set(uniqueName, { name: uniqueName, category: 'expense', id: `expense-${categoryId}` });
       }
     });
 
