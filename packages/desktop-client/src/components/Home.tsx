@@ -11,6 +11,15 @@ export function Home() {
   const { t } = useTranslation();
   const chartRef = useRef<ReactECharts>(null);
 
+  // Currency formatting function
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
   // Mock data - in a real implementation, this would come from your data hooks
   const summaryData = {
     income: { amount: 108660, label: 'Income', color: '#10B981' },
