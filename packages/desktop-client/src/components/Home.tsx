@@ -186,80 +186,44 @@ export function Home() {
       animation: true,
       animationDuration: 1500,
       animationEasing: 'cubicInOut',
-      series: [
-        {
-          type: 'sankey',
-          layout: 'none',
-          emphasis: {
-            focus: 'adjacency',
-            lineStyle: {
-              opacity: 0.9
-            }
-          },
-          blur: {
-            lineStyle: {
-              opacity: 0.1
-            },
-            label: {
-              opacity: 0.3
-            }
-          },
-          data: sankeyData.nodes.map((node, index) => ({
-            name: node.name,
-            category: node.category,
-            id: node.id || `node-${index}`,
-            itemStyle: {
-              color:
-                node.category === 'income' ? '#10B981' :
-                node.category === 'flow' ? '#6366F1' :
-                node.category === 'savings' ? '#8B5CF6' :
-                '#F59E0B',
-              borderColor: isDarkTheme ? '#374151' : '#E5E7EB',
-              borderWidth: 1
-            },
-            label: {
-              color: theme.pageText,
-              fontWeight: 'bold',
-              fontSize: 11,
-              formatter: function(params: any) {
-                return params.name.length > 12 ? params.name.slice(0, 12) + '...' : params.name;
-              }
-            }
-          })),
-          links: sankeyData.links.map((link, index) => ({
-            ...link,
-            id: link.id || `link-${index}`,
-            lineStyle: {
-              color: 'source',
-              opacity: 0.6,
-              curveness: 0.5
-            },
-            emphasis: {
-              lineStyle: {
-                opacity: 0.8,
-                width: 4
-              }
-            }
-          })),
+      series: [{
+        name: 'Income Flow',
+        type: 'sankey',
+        layout: 'none',
+        emphasis: {
+          focus: 'adjacency',
           lineStyle: {
-            curveness: 0.5
+            opacity: 0.9
+          }
+        },
+        blur: {
+          lineStyle: {
+            opacity: 0.1
           },
           label: {
-            position: 'right',
-            formatter: '{b}',
-            color: theme.pageText,
-            fontSize: 11
-          },
-          left: '3%',
-          right: '3%',
-          top: '12%',
-          bottom: '8%',
-          nodeWidth: 20,
-          nodeGap: 8,
-          draggable: false,
-          focusNodeAdjacency: 'allEdges'
-        }
-      ],
+            opacity: 0.3
+          }
+        },
+        data: sankeyData.nodes,
+        links: sankeyData.links,
+        lineStyle: {
+          curveness: 0.5
+        },
+        label: {
+          position: 'right',
+          formatter: '{b}',
+          color: theme.pageText,
+          fontSize: 11
+        },
+        left: '3%',
+        right: '3%',
+        top: '12%',
+        bottom: '8%',
+        nodeWidth: 20,
+        nodeGap: 8,
+        draggable: false,
+        focusNodeAdjacency: 'allEdges'
+      }],
       toolbox: {
         show: true,
         feature: {
