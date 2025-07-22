@@ -544,11 +544,25 @@ export function Home() {
         </Text>
       </View>
 
+      {/* Loading Indicator */}
+      {isLoading && (
+        <View style={{
+          padding: 20,
+          alignItems: 'center',
+          marginBottom: 20,
+        }}>
+          <Text style={{ color: theme.pageText }}>
+            {t('Loading financial data...')}
+          </Text>
+        </View>
+      )}
+
       {/* Summary Cards */}
       <View style={{
         flexDirection: 'row',
         gap: 16,
         marginBottom: 32,
+        opacity: isLoading ? 0.5 : 1,
       }}>
         <SummaryCard
           amount={summaryData.income.amount}
@@ -614,22 +628,46 @@ export function Home() {
           </Button>
         </View>
 
-        <ReactECharts
-          ref={chartRef}
-          option={chartOption}
-          style={{
-            height: '100%',
-            width: '100%',
-            minHeight: 400
-          }}
-          opts={{
-            renderer: 'svg',
-            width: 'auto',
-            height: 'auto'
-          }}
-          notMerge={true}
-          lazyUpdate={true}
-        />
+        {isLoading ? (
+          <View style={{
+            height: 400,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Text style={{ color: theme.pageText }}>
+              {t('Loading chart data...')}
+            </Text>
+          </View>
+        ) : sankeyData.nodes.length > 0 ? (
+          <ReactECharts
+            ref={chartRef}
+            option={chartOption}
+            style={{
+              height: '100%',
+              width: '100%',
+              minHeight: 400
+            }}
+            opts={{
+              renderer: 'svg',
+              width: 'auto',
+              height: 'auto'
+            }}
+            notMerge={true}
+            lazyUpdate={true}
+          />
+        ) : (
+          <View style={{
+            height: 400,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Text style={{ color: theme.pageText, textAlign: 'center' }}>
+              {t('No financial data available for the selected period.')}
+              <br />
+              {t('Try selecting a different date range or check your transactions.')}
+            </Text>
+          </View>
+        )}
 
         {/* Chart Legend */}
         <View style={{
