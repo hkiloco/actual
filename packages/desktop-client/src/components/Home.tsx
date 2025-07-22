@@ -26,7 +26,6 @@ export function Home() {
   // Real data hooks
   const accounts = useAccounts();
   const { list: categories } = useCategories();
-  const spreadsheet = useSpreadsheet();
   const [hideFraction] = useSyncedPref('hideFraction');
 
   // Date range options
