@@ -470,9 +470,12 @@ export function Home() {
     </View>
   );
 
+  // Loading states
+  const isLoading = incomeData.isLoading || expenseData.isLoading || accountBalances.isLoading;
+
   return (
-    <View style={{ 
-      flex: 1, 
+    <View style={{
+      flex: 1,
       backgroundColor: theme.pageBackground,
       padding: 20,
     }}>
