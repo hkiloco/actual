@@ -229,34 +229,43 @@ export function Home() {
 
     // Calculate percentages like in the reference image
     const incomePercentage = totalIncome > 0 ? '100%' : '0%';
-    const expensePercentage = totalIncome > 0 ? `${((totalExpenses / totalIncome) * 100).toFixed(0)}%` : '0%';
-    const netIncomePercentage = totalIncome > 0 ? `${((netIncome / totalIncome) * 100).toFixed(0)}%` : '0%';
-    const savingsRate = totalIncome > 0 ? `${((netIncome / totalIncome) * 100).toFixed(0)}%` : '0%';
+    const expensePercentage =
+      totalIncome > 0
+        ? `${((totalExpenses / totalIncome) * 100).toFixed(0)}%`
+        : '0%';
+    const netIncomePercentage =
+      totalIncome > 0
+        ? `${((netIncome / totalIncome) * 100).toFixed(0)}%`
+        : '0%';
+    const savingsRate =
+      totalIncome > 0
+        ? `${((netIncome / totalIncome) * 100).toFixed(0)}%`
+        : '0%';
 
     return {
       income: {
         amount: totalIncome,
         label: 'Income',
         color: '#10B981',
-        percentage: incomePercentage
+        percentage: incomePercentage,
       },
       expenses: {
         amount: totalExpenses,
         label: 'Expenses',
         color: '#F59E0B',
-        percentage: expensePercentage
+        percentage: expensePercentage,
       },
       netIncome: {
         amount: netIncome,
         label: 'Ending Balance',
         color: '#3B82F6',
-        percentage: netIncomePercentage
+        percentage: netIncomePercentage,
       },
       totalBalance: {
         amount: totalBalance,
         label: 'Remaining Balance until 2025',
         color: '#8B5CF6',
-        percentage: savingsRate
+        percentage: savingsRate,
       },
     };
   }, [incomeData.data, expenseData.data, accountBalances.data]);
@@ -427,22 +436,27 @@ export function Home() {
             ...node,
             itemStyle: {
               color:
-                node.category === 'income' ? '#22C55E' :  // Brighter green
-                node.category === 'flow' ? '#3B82F6' :    // Brighter blue
-                node.category === 'savings' ? '#A855F7' : // Brighter purple
-                '#F97316',  // Brighter orange
+                node.category === 'income'
+                  ? '#22C55E' // Brighter green
+                  : node.category === 'flow'
+                    ? '#3B82F6' // Brighter blue
+                    : node.category === 'savings'
+                      ? '#A855F7' // Brighter purple
+                      : '#F97316', // Brighter orange
               borderWidth: 2,
               borderColor: isDarkTheme ? '#1F2937' : '#FFFFFF',
-              shadowColor: isDarkTheme ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.1)',
+              shadowColor: isDarkTheme
+                ? 'rgba(0, 0, 0, 0.5)'
+                : 'rgba(0, 0, 0, 0.1)',
               shadowBlur: 4,
               shadowOffsetX: 1,
-              shadowOffsetY: 1
+              shadowOffsetY: 1,
             },
             label: {
               color: '#FFFFFF',
               fontWeight: 'bold',
-              fontSize: 12
-            }
+              fontSize: 12,
+            },
           })),
           links: sankeyData.links.map((link, index) => ({
             ...link,
@@ -450,31 +464,36 @@ export function Home() {
               color: 'source',
               opacity: 0.8,
               curveness: 0.5,
-              width: Math.max(3, Math.sqrt(link.value / 1000)) // Dynamic width based on value
+              width: Math.max(3, Math.sqrt(link.value / 1000)), // Dynamic width based on value
             },
             emphasis: {
               lineStyle: {
                 opacity: 1,
-                width: Math.max(5, Math.sqrt(link.value / 800))
-              }
+                width: Math.max(5, Math.sqrt(link.value / 800)),
+              },
             },
             label: {
               show: true,
               position: 'middle',
-              formatter: function(params: any) {
+              formatter: function (params: any) {
                 const totalIncome = summaryData.income.amount || 1;
-                const percentage = ((params.data.value / totalIncome) * 100).toFixed(1);
+                const percentage = (
+                  (params.data.value / totalIncome) *
+                  100
+                ).toFixed(1);
                 return `${percentage}%`;
               },
               color: '#FFFFFF',
               fontSize: 11,
               fontWeight: 'bold',
-              backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.9)',
+              backgroundColor: isDarkTheme
+                ? 'rgba(0, 0, 0, 0.7)'
+                : 'rgba(255, 255, 255, 0.9)',
               padding: [3, 6],
               borderRadius: 4,
               borderWidth: 1,
-              borderColor: isDarkTheme ? '#374151' : '#E5E7EB'
-            }
+              borderColor: isDarkTheme ? '#374151' : '#E5E7EB',
+            },
           })),
           lineStyle: {
             curveness: 0.5,
