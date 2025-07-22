@@ -660,6 +660,7 @@ export function Home() {
           amount={summaryData.income.amount}
           label={summaryData.income.label}
           color={summaryData.income.color}
+          percentage={summaryData.income.percentage}
         />
         <SummaryCard
           key="expenses-card"
@@ -667,6 +668,7 @@ export function Home() {
           amount={summaryData.expenses.amount}
           label={summaryData.expenses.label}
           color={summaryData.expenses.color}
+          percentage={summaryData.expenses.percentage}
         />
         <SummaryCard
           key="net-income-card"
@@ -674,11 +676,7 @@ export function Home() {
           amount={summaryData.netIncome.amount}
           label={summaryData.netIncome.label}
           color={summaryData.netIncome.color}
-          percentage={
-            summaryData.income.amount > 0
-              ? `${((summaryData.netIncome.amount / summaryData.income.amount) * 100).toFixed(1)}%`
-              : '0%'
-          }
+          percentage={summaryData.netIncome.percentage}
         />
         <SummaryCard
           key="total-balance-card"
@@ -686,6 +684,7 @@ export function Home() {
           amount={summaryData.totalBalance.amount}
           label={summaryData.totalBalance.label}
           color={summaryData.totalBalance.color}
+          percentage={summaryData.totalBalance.percentage}
         />
       </View>
 
