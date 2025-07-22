@@ -18,10 +18,21 @@ export function Home() {
 
 
 
-  // Real data hooks
-  const accounts = useAccounts();
-  const { list: categories } = useCategories();
-  const [hideFraction] = useSyncedPref('hideFraction');
+  // Real data hooks - with error handling
+  let accounts = [];
+  let categories = [];
+  let hideFraction = false;
+
+  try {
+    accounts = useAccounts() || [];
+    const categoriesResult = useCategories();
+    categories = categoriesResult?.list || [];
+    const [hideFractionValue] = useSyncedPref('hideFraction');
+    hideFraction = hideFractionValue || false;
+  } catch (error) {
+    console.warn('Backend not available, using fallback data:', error);
+    // Use empty arrays as fallback
+  }
 
 
 
