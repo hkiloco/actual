@@ -427,12 +427,21 @@ export function Home() {
             ...node,
             itemStyle: {
               color:
-                node.category === 'income' ? '#10B981' :
-                node.category === 'flow' ? '#6366F1' :
-                node.category === 'savings' ? '#8B5CF6' :
-                '#F59E0B',
+                node.category === 'income' ? '#22C55E' :  // Brighter green
+                node.category === 'flow' ? '#3B82F6' :    // Brighter blue
+                node.category === 'savings' ? '#A855F7' : // Brighter purple
+                '#F97316',  // Brighter orange
               borderWidth: 2,
-              borderColor: isDarkTheme ? '#374151' : '#FFFFFF',
+              borderColor: isDarkTheme ? '#1F2937' : '#FFFFFF',
+              shadowColor: isDarkTheme ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 4,
+              shadowOffsetX: 1,
+              shadowOffsetY: 1
+            },
+            label: {
+              color: isDarkTheme ? '#FFFFFF' : '#1F2937',
+              fontWeight: 'bold',
+              fontSize: 12
             }
           })),
           links: sankeyData.links.map((link, index) => ({
