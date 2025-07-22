@@ -18,20 +18,24 @@ export function Home() {
 
 
 
-  // Real data hooks - with error handling
+  // Try to get real data, but fallback to demo data if not available
   let accounts = [];
   let categories = [];
   let hideFraction = false;
 
-  try {
-    accounts = useAccounts() || [];
-    const categoriesResult = useCategories();
-    categories = categoriesResult?.list || [];
-    const [hideFractionValue] = useSyncedPref('hideFraction');
-    hideFraction = hideFractionValue || false;
-  } catch (error) {
-    console.warn('Backend not available, using fallback data:', error);
-    // Use empty arrays as fallback
+  // Check if we're in a context where these hooks can work
+  const canUseHooks = typeof window !== 'undefined' && window.__actionsForMenu;
+
+  if (canUseHooks) {
+    try {
+      accounts = useAccounts() || [];
+      const categoriesResult = useCategories();
+      categories = categoriesResult?.list || [];
+      const [hideFractionValue] = useSyncedPref('hideFraction');
+      hideFraction = hideFractionValue || false;
+    } catch (error) {
+      console.warn('Backend not available, using demo data:', error);
+    }
   }
 
 
@@ -508,7 +512,7 @@ export function Home() {
             fontSize: 18,
             fontWeight: 'bold'
           }}>
-            {t('Financial Dashboard')}
+            {t(canUseHooks ? 'Financial Dashboard' : 'Financial Dashboard Demo')}
           </Text>
         </View>
 
@@ -518,7 +522,7 @@ export function Home() {
           fontSize: 12,
           marginBottom: 8
         }}>
-          {t('Showing data from all accounts - All time')}
+          {t(canUseHooks ? 'Showing data from all accounts - All time' : 'Showing demo data from all accounts - All time')}
         </Text>
       </View>
 
