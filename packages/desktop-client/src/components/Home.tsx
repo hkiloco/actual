@@ -16,6 +16,18 @@ export function Home() {
   const { t } = useTranslation();
   const chartRef = useRef<ReactECharts>(null);
 
+  // Force chart resize after mount to ensure proper rendering
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (chartRef.current) {
+        const chartInstance = chartRef.current.getEchartsInstance();
+        chartInstance?.resize();
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
 
 
   // Try to get real data, but fallback to demo data if not available
