@@ -156,60 +156,86 @@ export function Home() {
     };
   }, [incomeData.data, expenseData.data, accountBalances.data]);
 
-  // Sankey chart data
+  // Sankey chart data using real budget data
   const sankeyData = useMemo(() => {
-    return {
-      nodes: [
-        // Income sources
-        { name: 'Salary', category: 'income' },
-        { name: 'Bonus', category: 'income' },
-        { name: 'Interest Income', category: 'income' },
+    if (!incomeData.data || !expenseData.data || !categories.length) {
+      return { nodes: [], links: [] };
+    }
 
-        // Main income flow
-        { name: 'Total Income', category: 'flow' },
+    const nodes = [];
+    const links = [];
 
-        // Expense categories
-        { name: 'Everyday', category: 'expense' },
-        { name: 'Groceries', category: 'expense' },
-        { name: 'Bills', category: 'expense' },
-        { name: 'Gasoline', category: 'expense' },
-        { name: 'Activities', category: 'expense' },
-        { name: 'Insurance', category: 'expense' },
-        { name: 'Transportation', category: 'expense' },
-        { name: 'Travel', category: 'expense' },
-        { name: 'Utilities', category: 'expense' },
-        { name: 'Health', category: 'expense' },
-        { name: 'Housing', category: 'expense' },
-        { name: 'Entertainment', category: 'expense' },
+    // Income categories
+    const incomeCategories = incomeData.data
+      .filter(item => item.amount > 0)
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5); // Top 5 income sources
 
-        // Savings/Investment
-        { name: 'Savings', category: 'savings' },
-      ],
-      links: [
-        // Income to Total Income
-        { source: 'Salary', target: 'Total Income', value: 84896 },
-        { source: 'Bonus', target: 'Total Income', value: 3010 },
-        { source: 'Interest Income', target: 'Total Income', value: 3507 },
+    incomeCategories.forEach(item => {
+      const category = categories.find(c => c.id === item.category);
+      if (category) {
+        nodes.push({ name: category.name, category: 'income' });
+      }
+    });
 
-        // Total Income to expenses
-        { source: 'Total Income', target: 'Everyday', value: 14395 },
-        { source: 'Total Income', target: 'Groceries', value: 10117 },
-        { source: 'Total Income', target: 'Bills', value: 10488 },
-        { source: 'Total Income', target: 'Gasoline', value: 6198 },
-        { source: 'Total Income', target: 'Activities', value: 207 },
-        { source: 'Total Income', target: 'Insurance', value: 3750 },
-        { source: 'Total Income', target: 'Transportation', value: 2795 },
-        { source: 'Total Income', target: 'Travel', value: 2314 },
-        { source: 'Total Income', target: 'Utilities', value: 4834 },
-        { source: 'Total Income', target: 'Health', value: 2934 },
-        { source: 'Total Income', target: 'Housing', value: 1806 },
-        { source: 'Total Income', target: 'Entertainment', value: 1935 },
+    // Main flow node
+    nodes.push({ name: 'Total Income', category: 'flow' });
 
-        // Remaining to savings
-        { source: 'Total Income', target: 'Savings', value: 41877 },
-      ]
-    };
-  }, []);
+    // Expense categories
+    const expenseCategories = expenseData.data
+      .filter(item => item.amount < 0)
+      .sort((a, b) => a.amount - b.amount) // Most negative first
+      .slice(0, 10); // Top 10 expense categories
+
+    expenseCategories.forEach(item => {
+      const category = categories.find(c => c.id === item.category);
+      if (category) {
+        nodes.push({ name: category.name, category: 'expense' });
+      }
+    });
+
+    // Savings node if there's net positive income
+    const totalIncome = summaryData.income.amount;
+    const totalExpenses = summaryData.expenses.amount;
+    if (totalIncome > totalExpenses) {
+      nodes.push({ name: 'Net Savings', category: 'savings' });
+    }
+
+    // Create links from income categories to total income
+    incomeCategories.forEach(item => {
+      const category = categories.find(c => c.id === item.category);
+      if (category) {
+        links.push({
+          source: category.name,
+          target: 'Total Income',
+          value: Math.abs(item.amount)
+        });
+      }
+    });
+
+    // Create links from total income to expense categories
+    expenseCategories.forEach(item => {
+      const category = categories.find(c => c.id === item.category);
+      if (category) {
+        links.push({
+          source: 'Total Income',
+          target: category.name,
+          value: Math.abs(item.amount)
+        });
+      }
+    });
+
+    // Link to savings if positive
+    if (totalIncome > totalExpenses) {
+      links.push({
+        source: 'Total Income',
+        target: 'Net Savings',
+        value: totalIncome - totalExpenses
+      });
+    }
+
+    return { nodes, links };
+  }, [incomeData.data, expenseData.data, categories, summaryData]);
 
   // Chart configuration with theme support
   const chartOption = useMemo(() => {
