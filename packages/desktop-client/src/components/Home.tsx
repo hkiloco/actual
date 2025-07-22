@@ -439,7 +439,7 @@ export function Home() {
               shadowOffsetY: 1
             },
             label: {
-              color: isDarkTheme ? '#FFFFFF' : '#1F2937',
+              color: '#FFFFFF',
               fontWeight: 'bold',
               fontSize: 12
             }
