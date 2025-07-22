@@ -243,7 +243,14 @@ export function FinancesApp() {
                 />
 
                 <Route path="/home" element={<Home />} />
-                <Route path="/demo-home" element={<DemoHome />} />
+                <Route
+                  path="/demo-home"
+                  element={
+                    <View style={{ height: '100%' }}>
+                      <DemoHome />
+                    </View>
+                  }
+                />
                 <Route path="/reports/*" element={<Reports />} />
 
                 <Route
