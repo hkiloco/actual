@@ -326,29 +326,7 @@
                     { name: 'Entertainment', category: 'expense' },
                     { name: 'Dining Out', category: 'expense' },
                     { name: 'Net Savings', category: 'savings' }
-                ].map(function(node, index) {
-                    return {
-                        name: node.name,
-                        category: node.category,
-                        id: 'node-' + index,
-                        itemStyle: {
-                            color: node.category === 'income' ? '#10B981' :
-                                   node.category === 'flow' ? '#6366F1' :
-                                   node.category === 'savings' ? '#8B5CF6' :
-                                   '#F59E0B',
-                            borderColor: '#E5E7EB',
-                            borderWidth: 1
-                        },
-                        label: {
-                            color: '#1f2937',
-                            fontWeight: 'bold',
-                            fontSize: 11,
-                            formatter: function(params) {
-                                return params.name.length > 12 ? params.name.slice(0, 12) + '...' : params.name;
-                            }
-                        }
-                    };
-                }),
+],
                 links: [
                     { source: 'Salary (Income)', target: 'Total Income', value: 350000 },
                     { source: 'Freelance (Income)', target: 'Total Income', value: 80000 },
