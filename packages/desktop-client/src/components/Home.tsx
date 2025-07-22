@@ -103,43 +103,34 @@ export function Home() {
     }).format(amount / 100); // Convert from cents to pounds
   }, []);
 
-  // Real budget data queries
-  const incomeData = useQuery(
-    () => {
-      return q('transactions')
-        .filter({
-          date: { $gte: dateRange.start, $lte: dateRange.end },
-          amount: { $gt: 0 },
-        })
-        .groupBy('category')
-        .select(['category', { amount: { $sum: '$amount' } }])
-        .options({ splits: 'all' });
-    },
-    [dateRange]
-  );
+  // Mock data for now - will implement real queries later
+  const incomeData = {
+    data: [
+      { category: 'salary', amount: 350000 }, // £3,500 in pence
+      { category: 'freelance', amount: 80000 }, // £800 in pence
+      { category: 'investments', amount: 25000 }, // £250 in pence
+    ],
+    isLoading: false
+  };
 
-  const expenseData = useQuery(
-    () => {
-      return q('transactions')
-        .filter({
-          date: { $gte: dateRange.start, $lte: dateRange.end },
-          amount: { $lt: 0 },
-        })
-        .groupBy('category')
-        .select(['category', { amount: { $sum: '$amount' } }])
-        .options({ splits: 'all' });
-    },
-    [dateRange]
-  );
+  const expenseData = {
+    data: [
+      { category: 'groceries', amount: -45000 }, // £450 in pence
+      { category: 'utilities', amount: -18000 }, // £180 in pence
+      { category: 'transport', amount: -12000 }, // £120 in pence
+      { category: 'entertainment', amount: -8000 }, // £80 in pence
+      { category: 'dining', amount: -15000 }, // £150 in pence
+    ],
+    isLoading: false
+  };
 
-  const accountBalances = useQuery(
-    () => {
-      return q('accounts')
-        .filter({ closed: false })
-        .select(['id', 'name', 'balance']);
-    },
-    []
-  );
+  const accountBalances = {
+    data: [
+      { id: '1', name: 'Current Account', balance: 250000 }, // £2,500
+      { id: '2', name: 'Savings Account', balance: 1500000 }, // £15,000
+    ],
+    isLoading: false
+  };
 
   // Calculate summary data from real budget data
   const summaryData = useMemo(() => {
