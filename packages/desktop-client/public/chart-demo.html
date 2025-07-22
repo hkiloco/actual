@@ -359,25 +359,7 @@
                     { source: 'Total Income', target: 'Entertainment', value: 8000 },
                     { source: 'Total Income', target: 'Dining Out', value: 15000 },
                     { source: 'Total Income', target: 'Net Savings', value: 357000 }
-                ].map(function(link, index) {
-                    return {
-                        source: link.source,
-                        target: link.target,
-                        value: link.value,
-                        id: 'link-' + index,
-                        lineStyle: {
-                            color: 'source',
-                            opacity: 0.6,
-                            curveness: 0.5
-                        },
-                        emphasis: {
-                            lineStyle: {
-                                opacity: 0.8,
-                                width: 4
-                            }
-                        }
-                    };
-                }),
+                ],
                 lineStyle: {
                     curveness: 0.5
                 },
