@@ -17,6 +17,7 @@ import { GlobalKeys } from './GlobalKeys';
 import { ManageRulesPage } from './ManageRulesPage';
 import { Category } from './mobile/budget/Category';
 import { Home } from './Home';
+import { DemoHome } from './DemoHome';
 import { MobileNavTabs } from './mobile/MobileNavTabs';
 import { TransactionEdit } from './mobile/transactions/TransactionEdit';
 import { Notifications } from './Notifications';
@@ -242,6 +243,7 @@ export function FinancesApp() {
                 />
 
                 <Route path="/home" element={<Home />} />
+                <Route path="/demo-home" element={<DemoHome />} />
                 <Route path="/reports/*" element={<Reports />} />
 
                 <Route
