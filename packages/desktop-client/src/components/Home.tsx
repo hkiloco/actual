@@ -162,35 +162,53 @@ export function Home() {
       return { nodes: [], links: [] };
     }
 
-    const nodes = [];
+    const nodes = new Map(); // Use Map to ensure unique names
     const links = [];
 
-    // Income categories
-    const incomeCategories = incomeData.data
-      .filter(item => item.amount > 0)
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 5); // Top 5 income sources
+    // Income categories - aggregate by category to avoid duplicates
+    const incomeByCategory = new Map();
+    incomeData.data
+      .filter(item => item.amount > 0 && item.category)
+      .forEach(item => {
+        const existing = incomeByCategory.get(item.category) || 0;
+        incomeByCategory.set(item.category, existing + item.amount);
+      });
 
-    incomeCategories.forEach(item => {
-      const category = categories.find(c => c.id === item.category);
-      if (category) {
-        nodes.push({ name: category.name, category: 'income' });
+    // Get top 5 income categories
+    const topIncomeCategories = Array.from(incomeByCategory.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    topIncomeCategories.forEach(([categoryId, amount]) => {
+      const category = categories.find(c => c.id === categoryId);
+      if (category && category.name) {
+        const uniqueName = `${category.name} (Income)`;
+        nodes.set(uniqueName, { name: uniqueName, category: 'income', id: categoryId });
       }
     });
 
     // Main flow node
-    nodes.push({ name: 'Total Income', category: 'flow' });
+    nodes.set('Total Income', { name: 'Total Income', category: 'flow', id: 'total-income' });
 
-    // Expense categories
-    const expenseCategories = expenseData.data
-      .filter(item => item.amount < 0)
-      .sort((a, b) => a.amount - b.amount) // Most negative first
-      .slice(0, 10); // Top 10 expense categories
+    // Expense categories - aggregate by category to avoid duplicates
+    const expenseByCategory = new Map();
+    expenseData.data
+      .filter(item => item.amount < 0 && item.category)
+      .forEach(item => {
+        const existing = expenseByCategory.get(item.category) || 0;
+        expenseByCategory.set(item.category, existing + item.amount);
+      });
 
-    expenseCategories.forEach(item => {
-      const category = categories.find(c => c.id === item.category);
-      if (category) {
-        nodes.push({ name: category.name, category: 'expense' });
+    // Get top 10 expense categories
+    const topExpenseCategories = Array.from(expenseByCategory.entries())
+      .sort((a, b) => a[1] - b[1]) // Most negative first
+      .slice(0, 10);
+
+    topExpenseCategories.forEach(([categoryId, amount]) => {
+      const category = categories.find(c => c.id === categoryId);
+      if (category && category.name) {
+        const uniqueName = category.name;
+        nodes.set(uniqueName, { name: uniqueName, category: 'expense', id: categoryId });
       }
     });
 
@@ -198,29 +216,32 @@ export function Home() {
     const totalIncome = summaryData.income.amount;
     const totalExpenses = summaryData.expenses.amount;
     if (totalIncome > totalExpenses) {
-      nodes.push({ name: 'Net Savings', category: 'savings' });
+      nodes.set('Net Savings', { name: 'Net Savings', category: 'savings', id: 'net-savings' });
     }
 
     // Create links from income categories to total income
-    incomeCategories.forEach(item => {
-      const category = categories.find(c => c.id === item.category);
-      if (category) {
+    topIncomeCategories.forEach(([categoryId, amount]) => {
+      const category = categories.find(c => c.id === categoryId);
+      if (category && category.name) {
+        const sourceName = `${category.name} (Income)`;
         links.push({
-          source: category.name,
+          source: sourceName,
           target: 'Total Income',
-          value: Math.abs(item.amount)
+          value: Math.abs(amount),
+          id: `income-${categoryId}`
         });
       }
     });
 
     // Create links from total income to expense categories
-    expenseCategories.forEach(item => {
-      const category = categories.find(c => c.id === item.category);
-      if (category) {
+    topExpenseCategories.forEach(([categoryId, amount]) => {
+      const category = categories.find(c => c.id === categoryId);
+      if (category && category.name) {
         links.push({
           source: 'Total Income',
           target: category.name,
-          value: Math.abs(item.amount)
+          value: Math.abs(amount),
+          id: `expense-${categoryId}`
         });
       }
     });
@@ -230,11 +251,15 @@ export function Home() {
       links.push({
         source: 'Total Income',
         target: 'Net Savings',
-        value: totalIncome - totalExpenses
+        value: totalIncome - totalExpenses,
+        id: 'savings-link'
       });
     }
 
-    return { nodes, links };
+    return {
+      nodes: Array.from(nodes.values()),
+      links: links.filter(link => link.value > 0) // Only include links with positive values
+    };
   }, [incomeData.data, expenseData.data, categories, summaryData]);
 
   // Chart configuration with theme support
