@@ -224,36 +224,83 @@ export function Home() {
   // Use real categories if available, otherwise use mock
   const activeCategories = categories.length > 0 ? categories : mockCategories;
 
-  // Simplified Sankey chart data using the same structure as the working demo
+  // Dynamic Sankey chart data using real financial data
   const sankeyData = useMemo(() => {
-    // Use the exact same data structure that works in the standalone demo
-    const nodes = [
-      { name: 'Salary (Income)', category: 'income' },
-      { name: 'Freelance (Income)', category: 'income' },
-      { name: 'Investments (Income)', category: 'income' },
-      { name: 'Total Income', category: 'flow' },
-      { name: 'Groceries', category: 'expense' },
-      { name: 'Utilities', category: 'expense' },
-      { name: 'Transport', category: 'expense' },
-      { name: 'Entertainment', category: 'expense' },
-      { name: 'Dining Out', category: 'expense' },
-      { name: 'Net Savings', category: 'savings' },
-    ];
+    const nodes = [];
+    const links = [];
 
-    const links = [
-      { source: 'Salary (Income)', target: 'Total Income', value: 350000 },
-      { source: 'Freelance (Income)', target: 'Total Income', value: 80000 },
-      { source: 'Investments (Income)', target: 'Total Income', value: 25000 },
-      { source: 'Total Income', target: 'Groceries', value: 45000 },
-      { source: 'Total Income', target: 'Utilities', value: 18000 },
-      { source: 'Total Income', target: 'Transport', value: 12000 },
-      { source: 'Total Income', target: 'Entertainment', value: 8000 },
-      { source: 'Total Income', target: 'Dining Out', value: 15000 },
-      { source: 'Total Income', target: 'Net Savings', value: 357000 },
-    ];
+    // If no real data available, use demo structure
+    if (!incomeData.data.length && !expenseData.data.length) {
+      return {
+        nodes: [
+          { name: 'Salary (Income)', category: 'income' },
+          { name: 'Freelance (Income)', category: 'income' },
+          { name: 'Investments (Income)', category: 'income' },
+          { name: 'Total Income', category: 'flow' },
+          { name: 'Groceries', category: 'expense' },
+          { name: 'Utilities', category: 'expense' },
+          { name: 'Transport', category: 'expense' },
+          { name: 'Entertainment', category: 'expense' },
+          { name: 'Dining Out', category: 'expense' },
+          { name: 'Net Savings', category: 'savings' }
+        ],
+        links: [
+          { source: 'Salary (Income)', target: 'Total Income', value: 350000 },
+          { source: 'Freelance (Income)', target: 'Total Income', value: 80000 },
+          { source: 'Investments (Income)', target: 'Total Income', value: 25000 },
+          { source: 'Total Income', target: 'Groceries', value: 45000 },
+          { source: 'Total Income', target: 'Utilities', value: 18000 },
+          { source: 'Total Income', target: 'Transport', value: 12000 },
+          { source: 'Total Income', target: 'Entertainment', value: 8000 },
+          { source: 'Total Income', target: 'Dining Out', value: 15000 },
+          { source: 'Total Income', target: 'Net Savings', value: 357000 }
+        ]
+      };
+    }
+
+    // Add income category nodes and links
+    incomeData.data.forEach(item => {
+      if (item.amount > 0) {
+        const nodeName = `${item.categoryName || item.category} (Income)`;
+        nodes.push({ name: nodeName, category: 'income' });
+        links.push({
+          source: nodeName,
+          target: 'Total Income',
+          value: Math.abs(item.amount)
+        });
+      }
+    });
+
+    // Add central flow node
+    nodes.push({ name: 'Total Income', category: 'flow' });
+
+    // Add expense category nodes and links
+    expenseData.data.forEach(item => {
+      if (item.amount < 0) {
+        const nodeName = item.categoryName || item.category;
+        nodes.push({ name: nodeName, category: 'expense' });
+        links.push({
+          source: 'Total Income',
+          target: nodeName,
+          value: Math.abs(item.amount)
+        });
+      }
+    });
+
+    // Add savings node if there's net positive income
+    const totalIncome = summaryData.income.amount;
+    const totalExpenses = summaryData.expenses.amount;
+    if (totalIncome > totalExpenses) {
+      nodes.push({ name: 'Net Savings', category: 'savings' });
+      links.push({
+        source: 'Total Income',
+        target: 'Net Savings',
+        value: totalIncome - totalExpenses
+      });
+    }
 
     return { nodes, links };
-  }, []);
+  }, [incomeData.data, expenseData.data, summaryData]);
 
   // Chart configuration with theme support
   const chartOption = useMemo(() => {
