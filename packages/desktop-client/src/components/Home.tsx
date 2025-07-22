@@ -1,16 +1,12 @@
-import React, { useMemo, useCallback, useRef, useState } from 'react';
+import React, { useMemo, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
-import { subMonths, format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 import { Text } from '@actual-app/components/text';
 import { Button } from '@actual-app/components/button';
-import { Select } from '@actual-app/components/select';
-import { SvgCalendar3 } from '@actual-app/components/icons/v2';
-
-import * as monthUtils from 'loot-core/shared/months';
 
 import { useAccounts } from '@desktop-client/hooks/useAccounts';
 import { useCategories } from '@desktop-client/hooks/useCategories';
@@ -20,74 +16,14 @@ export function Home() {
   const { t } = useTranslation();
   const chartRef = useRef<ReactECharts>(null);
 
-  // Date filtering state
-  const [selectedDateRange, setSelectedDateRange] = useState('Last 6 months');
+
 
   // Real data hooks
   const accounts = useAccounts();
   const { list: categories } = useCategories();
   const [hideFraction] = useSyncedPref('hideFraction');
 
-  // Date range options - Select component expects array of tuples
-  const dateRangeOptions = [
-    ['This month', t('This month')],
-    ['Last month', t('Last month')],
-    ['Last 3 months', t('Last 3 months')],
-    ['Last 6 months', t('Last 6 months')],
-    ['Last 12 months', t('Last 12 months')],
-    ['This year', t('This year')],
-    ['Last year', t('Last year')],
-  ] as const;
 
-  // Calculate date range based on selection
-  const dateRange = useMemo(() => {
-    const today = new Date();
-    const currentMonth = monthUtils.currentMonth();
-
-    switch (selectedDateRange) {
-      case 'This month':
-        return {
-          start: monthUtils.firstDayOfMonth(currentMonth),
-          end: monthUtils.lastDayOfMonth(currentMonth)
-        };
-      case 'Last month':
-        const lastMonth = monthUtils.subMonths(currentMonth, 1);
-        return {
-          start: monthUtils.firstDayOfMonth(lastMonth),
-          end: monthUtils.lastDayOfMonth(lastMonth)
-        };
-      case 'Last 3 months':
-        return {
-          start: monthUtils.firstDayOfMonth(monthUtils.subMonths(currentMonth, 2)),
-          end: monthUtils.lastDayOfMonth(currentMonth)
-        };
-      case 'Last 6 months':
-        return {
-          start: monthUtils.firstDayOfMonth(monthUtils.subMonths(currentMonth, 5)),
-          end: monthUtils.lastDayOfMonth(currentMonth)
-        };
-      case 'Last 12 months':
-        return {
-          start: monthUtils.firstDayOfMonth(monthUtils.subMonths(currentMonth, 11)),
-          end: monthUtils.lastDayOfMonth(currentMonth)
-        };
-      case 'This year':
-        return {
-          start: `${today.getFullYear()}-01-01`,
-          end: monthUtils.currentDay()
-        };
-      case 'Last year':
-        return {
-          start: `${today.getFullYear() - 1}-01-01`,
-          end: `${today.getFullYear() - 1}-12-31`
-        };
-      default:
-        return {
-          start: monthUtils.firstDayOfMonth(monthUtils.subMonths(currentMonth, 5)),
-          end: monthUtils.lastDayOfMonth(currentMonth)
-        };
-    }
-  }, [selectedDateRange]);
 
   // Currency formatting function - updated to GBP
   const formatCurrency = useCallback((amount: number) => {
@@ -538,68 +474,40 @@ export function Home() {
       backgroundColor: theme.pageBackground,
       padding: 20,
     }}>
-      {/* Header with Date Filter */}
+      {/* Header */}
       <View style={{ marginBottom: 32 }}>
         <View style={{
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
           marginBottom: 16,
         }}>
           <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
+            backgroundColor: '#2563EB',
+            borderRadius: 6,
+            paddingHorizontal: 12,
+            paddingVertical: 4,
+            marginRight: 12,
           }}>
-            <View style={{
-              backgroundColor: '#2563EB',
-              borderRadius: 6,
-              paddingHorizontal: 12,
-              paddingVertical: 4,
-              marginRight: 12,
-            }}>
-              <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
-                {format(new Date(), 'yyyy')}
-              </Text>
-            </View>
-            <Text style={{
-              color: theme.pageText,
-              fontSize: 18,
-              fontWeight: 'bold'
-            }}>
-              {t('Financial Dashboard')}
+            <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
+              {format(new Date(), 'yyyy')}
             </Text>
           </View>
-
-          {/* Date Range Filter */}
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
+          <Text style={{
+            color: theme.pageText,
+            fontSize: 18,
+            fontWeight: 'bold'
           }}>
-            <SvgCalendar3 style={{
-              width: 16,
-              height: 16,
-              color: theme.pageText
-            }} />
-            <Select
-              value={selectedDateRange}
-              onChange={setSelectedDateRange}
-              options={dateRangeOptions}
-              style={{
-                minWidth: 160,
-                fontSize: 14,
-              }}
-            />
-          </View>
+            {t('Financial Dashboard')}
+          </Text>
         </View>
 
-        {/* Date Range Display */}
+        {/* All-time Data Display */}
         <Text style={{
           color: theme.pageTextSubdued,
           fontSize: 12,
           marginBottom: 8
         }}>
-          {t('Period')}: {dateRange.start} {t('to')} {dateRange.end}
+          {t('Showing data from all accounts - All time')}
         </Text>
       </View>
 
