@@ -482,7 +482,7 @@ export function Home() {
           label: {
             position: 'right',
             formatter: '{b}',
-            color: theme.pageText,
+            color: '#FFFFFF',
             fontSize: 11,
           },
           left: '3%',
