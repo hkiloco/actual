@@ -51,32 +51,50 @@ export function Home() {
   }
 
   // Queries for real transaction data
-  const incomeQuery = useMemo(() =>
-    q('transactions')
-      .filter({ amount: { $gt: 0 } })
-      .select(['*', { categoryName: { $id: '$category.name' }, categoryIncome: { $id: '$category.is_income' } }])
-      .orderBy({ date: 'desc' }),
-    []
+  const incomeQuery = useMemo(
+    () =>
+      q('transactions')
+        .filter({ amount: { $gt: 0 } })
+        .select([
+          '*',
+          {
+            categoryName: { $id: '$category.name' },
+            categoryIncome: { $id: '$category.is_income' },
+          },
+        ])
+        .orderBy({ date: 'desc' }),
+    [],
   );
 
-  const expenseQuery = useMemo(() =>
-    q('transactions')
-      .filter({ amount: { $lt: 0 } })
-      .select(['*', { categoryName: { $id: '$category.name' }, categoryIncome: { $id: '$category.is_income' } }])
-      .orderBy({ date: 'desc' }),
-    []
+  const expenseQuery = useMemo(
+    () =>
+      q('transactions')
+        .filter({ amount: { $lt: 0 } })
+        .select([
+          '*',
+          {
+            categoryName: { $id: '$category.name' },
+            categoryIncome: { $id: '$category.is_income' },
+          },
+        ])
+        .orderBy({ date: 'desc' }),
+    [],
   );
 
   // Use real transaction data if available
-  const incomeTransactionResult = canUseHooks ? useTransactions({
-    query: incomeQuery,
-    options: { pageCount: 1000 }
-  }) : { transactions: [], isLoading: false };
+  const incomeTransactionResult = canUseHooks
+    ? useTransactions({
+        query: incomeQuery,
+        options: { pageCount: 1000 },
+      })
+    : { transactions: [], isLoading: false };
 
-  const expenseTransactionResult = canUseHooks ? useTransactions({
-    query: expenseQuery,
-    options: { pageCount: 1000 }
-  }) : { transactions: [], isLoading: false };
+  const expenseTransactionResult = canUseHooks
+    ? useTransactions({
+        query: expenseQuery,
+        options: { pageCount: 1000 },
+      })
+    : { transactions: [], isLoading: false };
 
   // Currency formatting function - updated to GBP
   const formatCurrency = useCallback((amount: number) => {
@@ -97,7 +115,7 @@ export function Home() {
           { category: 'freelance', amount: 80000 }, // £800 in pence
           { category: 'investments', amount: 25000 }, // £250 in pence
         ],
-        isLoading: false
+        isLoading: false,
       };
     }
 
@@ -110,17 +128,23 @@ export function Home() {
     });
 
     // Convert to array format
-    const data = Array.from(categoryTotals.entries()).map(([category, amount]) => ({
-      category: category.toLowerCase().replace(/\s+/g, '-'),
-      categoryName: category,
-      amount: amount
-    }));
+    const data = Array.from(categoryTotals.entries()).map(
+      ([category, amount]) => ({
+        category: category.toLowerCase().replace(/\s+/g, '-'),
+        categoryName: category,
+        amount: amount,
+      }),
+    );
 
     return {
       data,
-      isLoading: incomeTransactionResult.isLoading
+      isLoading: incomeTransactionResult.isLoading,
     };
-  }, [canUseHooks, incomeTransactionResult.transactions, incomeTransactionResult.isLoading]);
+  }, [
+    canUseHooks,
+    incomeTransactionResult.transactions,
+    incomeTransactionResult.isLoading,
+  ]);
 
   const expenseData = useMemo(() => {
     if (!canUseHooks || !expenseTransactionResult.transactions.length) {
@@ -133,7 +157,7 @@ export function Home() {
           { category: 'entertainment', amount: -8000 }, // £80 in pence
           { category: 'dining', amount: -15000 }, // £150 in pence
         ],
-        isLoading: false
+        isLoading: false,
       };
     }
 
@@ -146,17 +170,23 @@ export function Home() {
     });
 
     // Convert to array format
-    const data = Array.from(categoryTotals.entries()).map(([category, amount]) => ({
-      category: category.toLowerCase().replace(/\s+/g, '-'),
-      categoryName: category,
-      amount: amount
-    }));
+    const data = Array.from(categoryTotals.entries()).map(
+      ([category, amount]) => ({
+        category: category.toLowerCase().replace(/\s+/g, '-'),
+        categoryName: category,
+        amount: amount,
+      }),
+    );
 
     return {
       data,
-      isLoading: expenseTransactionResult.isLoading
+      isLoading: expenseTransactionResult.isLoading,
     };
-  }, [canUseHooks, expenseTransactionResult.transactions, expenseTransactionResult.isLoading]);
+  }, [
+    canUseHooks,
+    expenseTransactionResult.transactions,
+    expenseTransactionResult.isLoading,
+  ]);
 
   const accountBalances = useMemo(() => {
     if (!canUseHooks || !accounts.length) {
@@ -166,7 +196,7 @@ export function Home() {
           { id: '1', name: 'Current Account', balance: 250000 }, // £2,500
           { id: '2', name: 'Savings Account', balance: 1500000 }, // £15,000
         ],
-        isLoading: false
+        isLoading: false,
       };
     }
 
@@ -174,12 +204,12 @@ export function Home() {
     const data = accounts.map(account => ({
       id: account.id,
       name: account.name,
-      balance: account.balance || 0
+      balance: account.balance || 0,
     }));
 
     return {
       data,
-      isLoading: false
+      isLoading: false,
     };
   }, [canUseHooks, accounts]);
 
@@ -242,19 +272,27 @@ export function Home() {
           { name: 'Transport', category: 'expense' },
           { name: 'Entertainment', category: 'expense' },
           { name: 'Dining Out', category: 'expense' },
-          { name: 'Net Savings', category: 'savings' }
+          { name: 'Net Savings', category: 'savings' },
         ],
         links: [
           { source: 'Salary (Income)', target: 'Total Income', value: 350000 },
-          { source: 'Freelance (Income)', target: 'Total Income', value: 80000 },
-          { source: 'Investments (Income)', target: 'Total Income', value: 25000 },
+          {
+            source: 'Freelance (Income)',
+            target: 'Total Income',
+            value: 80000,
+          },
+          {
+            source: 'Investments (Income)',
+            target: 'Total Income',
+            value: 25000,
+          },
           { source: 'Total Income', target: 'Groceries', value: 45000 },
           { source: 'Total Income', target: 'Utilities', value: 18000 },
           { source: 'Total Income', target: 'Transport', value: 12000 },
           { source: 'Total Income', target: 'Entertainment', value: 8000 },
           { source: 'Total Income', target: 'Dining Out', value: 15000 },
-          { source: 'Total Income', target: 'Net Savings', value: 357000 }
-        ]
+          { source: 'Total Income', target: 'Net Savings', value: 357000 },
+        ],
       };
     }
 
@@ -266,7 +304,7 @@ export function Home() {
         links.push({
           source: nodeName,
           target: 'Total Income',
-          value: Math.abs(item.amount)
+          value: Math.abs(item.amount),
         });
       }
     });
@@ -282,7 +320,7 @@ export function Home() {
         links.push({
           source: 'Total Income',
           target: nodeName,
-          value: Math.abs(item.amount)
+          value: Math.abs(item.amount),
         });
       }
     });
@@ -295,7 +333,7 @@ export function Home() {
       links.push({
         source: 'Total Income',
         target: 'Net Savings',
-        value: totalIncome - totalExpenses
+        value: totalIncome - totalExpenses,
       });
     }
 
