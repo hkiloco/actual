@@ -7,6 +7,7 @@ import {
   SvgCheveronRight,
   SvgCog,
   SvgCreditCard,
+  SvgHome,
   SvgReports,
   SvgStoreFront,
   SvgTag,
@@ -46,6 +47,7 @@ export function PrimaryButtons() {
 
   return (
     <View style={{ flexShrink: 0 }}>
+      <Item title={t('Home')} Icon={SvgHome} to="/home" />
       <Item title={t('Budget')} Icon={SvgWallet} to="/budget" />
       <Item title={t('Reports')} Icon={SvgReports} to="/reports" />
       <Item title={t('Schedules')} Icon={SvgCalendar3} to="/schedules" />
