@@ -266,7 +266,8 @@ export function Home() {
         padding: [8, 12],
         formatter: function(params: any) {
           if (params.dataType === 'edge') {
-            const percentage = ((params.data.value / 108660) * 100).toFixed(1);
+            const totalIncome = summaryData.income.amount || 1;
+            const percentage = ((params.data.value / totalIncome) * 100).toFixed(1);
             return `
               <div style="font-weight: bold; margin-bottom: 4px;">${params.data.source} → ${params.data.target}</div>
               <div>Amount: ${formatCurrency(params.data.value)}</div>
