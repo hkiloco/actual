@@ -142,9 +142,24 @@ export function Home() {
     };
   }, [incomeData.data, expenseData.data, accountBalances.data]);
 
-  // Sankey chart data using real budget data
+  // Mock categories for chart generation
+  const mockCategories = [
+    { id: 'salary', name: 'Salary' },
+    { id: 'freelance', name: 'Freelance' },
+    { id: 'investments', name: 'Investments' },
+    { id: 'groceries', name: 'Groceries' },
+    { id: 'utilities', name: 'Utilities' },
+    { id: 'transport', name: 'Transport' },
+    { id: 'entertainment', name: 'Entertainment' },
+    { id: 'dining', name: 'Dining Out' },
+  ];
+
+  // Use real categories if available, otherwise use mock
+  const activeCategories = categories.length > 0 ? categories : mockCategories;
+
+  // Sankey chart data using budget data
   const sankeyData = useMemo(() => {
-    if (!incomeData.data || !expenseData.data || !categories.length) {
+    if (!incomeData.data || !expenseData.data) {
       return { nodes: [], links: [] };
     }
 
