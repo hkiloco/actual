@@ -28,16 +28,16 @@ export function Home() {
   const { list: categories } = useCategories();
   const [hideFraction] = useSyncedPref('hideFraction');
 
-  // Date range options
+  // Date range options - Select component expects array of tuples
   const dateRangeOptions = [
-    { value: 'This month', label: t('This month'), key: 'this-month' },
-    { value: 'Last month', label: t('Last month'), key: 'last-month' },
-    { value: 'Last 3 months', label: t('Last 3 months'), key: 'last-3-months' },
-    { value: 'Last 6 months', label: t('Last 6 months'), key: 'last-6-months' },
-    { value: 'Last 12 months', label: t('Last 12 months'), key: 'last-12-months' },
-    { value: 'This year', label: t('This year'), key: 'this-year' },
-    { value: 'Last year', label: t('Last year'), key: 'last-year' },
-  ];
+    ['This month', t('This month')],
+    ['Last month', t('Last month')],
+    ['Last 3 months', t('Last 3 months')],
+    ['Last 6 months', t('Last 6 months')],
+    ['Last 12 months', t('Last 12 months')],
+    ['This year', t('This year')],
+    ['Last year', t('Last year')],
+  ] as const;
 
   // Calculate date range based on selection
   const dateRange = useMemo(() => {
