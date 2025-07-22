@@ -87,26 +87,76 @@ export function Home() {
     }).format(amount / 100); // Convert from cents to pounds
   }, []);
 
-  // Mock data for now - will implement real queries later
-  const incomeData = {
-    data: [
-      { category: 'salary', amount: 350000 }, // £3,500 in pence
-      { category: 'freelance', amount: 80000 }, // £800 in pence
-      { category: 'investments', amount: 25000 }, // £250 in pence
-    ],
-    isLoading: false,
-  };
+  // Process real transaction data by category
+  const incomeData = useMemo(() => {
+    if (!canUseHooks || !incomeTransactionResult.transactions.length) {
+      // Fallback to demo data if no real data available
+      return {
+        data: [
+          { category: 'salary', amount: 350000 }, // £3,500 in pence
+          { category: 'freelance', amount: 80000 }, // £800 in pence
+          { category: 'investments', amount: 25000 }, // £250 in pence
+        ],
+        isLoading: false
+      };
+    }
 
-  const expenseData = {
-    data: [
-      { category: 'groceries', amount: -45000 }, // £450 in pence
-      { category: 'utilities', amount: -18000 }, // £180 in pence
-      { category: 'transport', amount: -12000 }, // £120 in pence
-      { category: 'entertainment', amount: -8000 }, // £80 in pence
-      { category: 'dining', amount: -15000 }, // £150 in pence
-    ],
-    isLoading: false,
-  };
+    // Group income transactions by category and sum amounts
+    const categoryTotals = new Map();
+    incomeTransactionResult.transactions.forEach(transaction => {
+      const categoryName = transaction.categoryName || 'Uncategorized';
+      const existing = categoryTotals.get(categoryName) || 0;
+      categoryTotals.set(categoryName, existing + transaction.amount);
+    });
+
+    // Convert to array format
+    const data = Array.from(categoryTotals.entries()).map(([category, amount]) => ({
+      category: category.toLowerCase().replace(/\s+/g, '-'),
+      categoryName: category,
+      amount: amount
+    }));
+
+    return {
+      data,
+      isLoading: incomeTransactionResult.isLoading
+    };
+  }, [canUseHooks, incomeTransactionResult.transactions, incomeTransactionResult.isLoading]);
+
+  const expenseData = useMemo(() => {
+    if (!canUseHooks || !expenseTransactionResult.transactions.length) {
+      // Fallback to demo data if no real data available
+      return {
+        data: [
+          { category: 'groceries', amount: -45000 }, // £450 in pence
+          { category: 'utilities', amount: -18000 }, // £180 in pence
+          { category: 'transport', amount: -12000 }, // £120 in pence
+          { category: 'entertainment', amount: -8000 }, // £80 in pence
+          { category: 'dining', amount: -15000 }, // £150 in pence
+        ],
+        isLoading: false
+      };
+    }
+
+    // Group expense transactions by category and sum amounts
+    const categoryTotals = new Map();
+    expenseTransactionResult.transactions.forEach(transaction => {
+      const categoryName = transaction.categoryName || 'Uncategorized';
+      const existing = categoryTotals.get(categoryName) || 0;
+      categoryTotals.set(categoryName, existing + transaction.amount);
+    });
+
+    // Convert to array format
+    const data = Array.from(categoryTotals.entries()).map(([category, amount]) => ({
+      category: category.toLowerCase().replace(/\s+/g, '-'),
+      categoryName: category,
+      amount: amount
+    }));
+
+    return {
+      data,
+      isLoading: expenseTransactionResult.isLoading
+    };
+  }, [canUseHooks, expenseTransactionResult.transactions, expenseTransactionResult.isLoading]);
 
   const accountBalances = {
     data: [
