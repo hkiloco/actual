@@ -298,6 +298,7 @@
             animationDuration: 1500,
             animationEasing: 'cubicInOut',
             series: [{
+                name: 'Income Flow',
                 type: 'sankey',
                 layout: 'none',
                 emphasis: {
@@ -429,8 +430,13 @@
             }
         };
 
-        // Set the chart option
+        // Set the chart option and ensure it renders
         myChart.setOption(chartOption);
+
+        // Force resize after a short delay to ensure proper rendering
+        setTimeout(function() {
+            myChart.resize();
+        }, 100);
 
         // Export functionality
         function exportChart() {
