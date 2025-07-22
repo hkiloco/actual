@@ -24,13 +24,83 @@ export function Home() {
   const { t } = useTranslation();
   const chartRef = useRef<ReactECharts>(null);
 
-  // Currency formatting function
+  // Date filtering state
+  const [selectedDateRange, setSelectedDateRange] = useState('Last 6 months');
+
+  // Real data hooks
+  const accounts = useAccounts();
+  const { list: categories } = useCategories();
+  const spreadsheet = useSpreadsheet();
+  const [hideFraction] = useSyncedPref('hideFraction');
+
+  // Date range options
+  const dateRangeOptions = [
+    { value: 'This month', label: t('This month') },
+    { value: 'Last month', label: t('Last month') },
+    { value: 'Last 3 months', label: t('Last 3 months') },
+    { value: 'Last 6 months', label: t('Last 6 months') },
+    { value: 'Last 12 months', label: t('Last 12 months') },
+    { value: 'This year', label: t('This year') },
+    { value: 'Last year', label: t('Last year') },
+  ];
+
+  // Calculate date range based on selection
+  const dateRange = useMemo(() => {
+    const today = new Date();
+    const currentMonth = monthUtils.currentMonth();
+
+    switch (selectedDateRange) {
+      case 'This month':
+        return {
+          start: monthUtils.firstDayOfMonth(currentMonth),
+          end: monthUtils.lastDayOfMonth(currentMonth)
+        };
+      case 'Last month':
+        const lastMonth = monthUtils.subMonths(currentMonth, 1);
+        return {
+          start: monthUtils.firstDayOfMonth(lastMonth),
+          end: monthUtils.lastDayOfMonth(lastMonth)
+        };
+      case 'Last 3 months':
+        return {
+          start: monthUtils.firstDayOfMonth(monthUtils.subMonths(currentMonth, 2)),
+          end: monthUtils.lastDayOfMonth(currentMonth)
+        };
+      case 'Last 6 months':
+        return {
+          start: monthUtils.firstDayOfMonth(monthUtils.subMonths(currentMonth, 5)),
+          end: monthUtils.lastDayOfMonth(currentMonth)
+        };
+      case 'Last 12 months':
+        return {
+          start: monthUtils.firstDayOfMonth(monthUtils.subMonths(currentMonth, 11)),
+          end: monthUtils.lastDayOfMonth(currentMonth)
+        };
+      case 'This year':
+        return {
+          start: `${today.getFullYear()}-01-01`,
+          end: monthUtils.currentDay()
+        };
+      case 'Last year':
+        return {
+          start: `${today.getFullYear() - 1}-01-01`,
+          end: `${today.getFullYear() - 1}-12-31`
+        };
+      default:
+        return {
+          start: monthUtils.firstDayOfMonth(monthUtils.subMonths(currentMonth, 5)),
+          end: monthUtils.lastDayOfMonth(currentMonth)
+        };
+    }
+  }, [selectedDateRange]);
+
+  // Currency formatting function - updated to GBP
   const formatCurrency = useCallback((amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: 'EUR',
+      currency: 'GBP',
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(amount / 100); // Convert from cents to pounds
   }, []);
 
   // Mock data - in a real implementation, this would come from your data hooks
