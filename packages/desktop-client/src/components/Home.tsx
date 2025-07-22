@@ -288,7 +288,7 @@ export function Home() {
       nodes: Array.from(nodes.values()),
       links: links.filter(link => link.value > 0) // Only include links with positive values
     };
-  }, [incomeData.data, expenseData.data, categories, summaryData]);
+  }, [incomeData.data, expenseData.data, activeCategories, summaryData]);
 
   // Chart configuration with theme support
   const chartOption = useMemo(() => {
