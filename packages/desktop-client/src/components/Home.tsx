@@ -227,14 +227,36 @@ export function Home() {
         0,
       ) || 0;
 
+    // Calculate percentages like in the reference image
+    const incomePercentage = totalIncome > 0 ? '100%' : '0%';
+    const expensePercentage = totalIncome > 0 ? `${((totalExpenses / totalIncome) * 100).toFixed(0)}%` : '0%';
+    const netIncomePercentage = totalIncome > 0 ? `${((netIncome / totalIncome) * 100).toFixed(0)}%` : '0%';
+    const savingsRate = totalIncome > 0 ? `${((netIncome / totalIncome) * 100).toFixed(0)}%` : '0%';
+
     return {
-      income: { amount: totalIncome, label: 'Income', color: '#10B981' },
-      expenses: { amount: totalExpenses, label: 'Expenses', color: '#F59E0B' },
-      netIncome: { amount: netIncome, label: 'Net Income', color: '#3B82F6' },
+      income: {
+        amount: totalIncome,
+        label: 'Income',
+        color: '#10B981',
+        percentage: incomePercentage
+      },
+      expenses: {
+        amount: totalExpenses,
+        label: 'Expenses',
+        color: '#F59E0B',
+        percentage: expensePercentage
+      },
+      netIncome: {
+        amount: netIncome,
+        label: 'Ending Balance',
+        color: '#3B82F6',
+        percentage: netIncomePercentage
+      },
       totalBalance: {
         amount: totalBalance,
-        label: 'Total Balance',
+        label: 'Remaining Balance until 2025',
         color: '#8B5CF6',
+        percentage: savingsRate
       },
     };
   }, [incomeData.data, expenseData.data, accountBalances.data]);
