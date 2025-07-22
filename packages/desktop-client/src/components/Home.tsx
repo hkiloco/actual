@@ -236,27 +236,40 @@ export function Home() {
     // Create links from income categories to total income
     topIncomeCategories.forEach(([categoryId, amount]) => {
       const category = categories.find(c => c.id === categoryId);
-      if (category && category.name) {
-        const sourceName = `${category.name} (Income)`;
-        links.push({
-          source: sourceName,
-          target: 'Total Income',
-          value: Math.abs(amount),
-          id: `income-${categoryId}`
-        });
+      if (category && category.name && category.name.trim()) {
+        // Find the actual node name that was created
+        const nodeEntry = Array.from(nodes.entries()).find(
+          ([name, node]) => node.id === `income-${categoryId}`
+        );
+        if (nodeEntry) {
+          const [nodeName] = nodeEntry;
+          links.push({
+            source: nodeName,
+            target: 'Total Income',
+            value: Math.abs(amount),
+            id: `link-income-${categoryId}`
+          });
+        }
       }
     });
 
     // Create links from total income to expense categories
     topExpenseCategories.forEach(([categoryId, amount]) => {
       const category = categories.find(c => c.id === categoryId);
-      if (category && category.name) {
-        links.push({
-          source: 'Total Income',
-          target: category.name,
-          value: Math.abs(amount),
-          id: `expense-${categoryId}`
-        });
+      if (category && category.name && category.name.trim()) {
+        // Find the actual node name that was created
+        const nodeEntry = Array.from(nodes.entries()).find(
+          ([name, node]) => node.id === `expense-${categoryId}`
+        );
+        if (nodeEntry) {
+          const [nodeName] = nodeEntry;
+          links.push({
+            source: 'Total Income',
+            target: nodeName,
+            value: Math.abs(amount),
+            id: `link-expense-${categoryId}`
+          });
+        }
       }
     });
 
