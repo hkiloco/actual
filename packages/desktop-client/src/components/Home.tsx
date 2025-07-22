@@ -389,7 +389,7 @@ export function Home() {
         fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }
     };
-  }, [sankeyData, theme, formatCurrency]);
+  }, [sankeyData, theme, formatCurrency, summaryData]);
 
   // Export functionality
   const handleExportChart = useCallback(() => {
