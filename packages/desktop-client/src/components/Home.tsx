@@ -103,13 +103,58 @@ export function Home() {
     }).format(amount / 100); // Convert from cents to pounds
   }, []);
 
-  // Mock data - in a real implementation, this would come from your data hooks
-  const summaryData = {
-    income: { amount: 108660, label: 'Income', color: '#10B981' },
-    expenses: { amount: 66783, label: 'Expenses', color: '#F59E0B' },
-    endingBalance: { amount: 41817, label: 'Ending Balance', color: '#3B82F6' },
-    remainingBalance: { amount: 47605, label: 'Remaining Balance until 2026', color: '#8B5CF6' },
-  };
+  // Real budget data queries
+  const incomeData = useQuery(
+    () => {
+      return q('transactions')
+        .filter({
+          date: { $gte: dateRange.start, $lte: dateRange.end },
+          amount: { $gt: 0 },
+        })
+        .groupBy('category')
+        .select(['category', { amount: { $sum: '$amount' } }])
+        .options({ splits: 'all' });
+    },
+    [dateRange]
+  );
+
+  const expenseData = useQuery(
+    () => {
+      return q('transactions')
+        .filter({
+          date: { $gte: dateRange.start, $lte: dateRange.end },
+          amount: { $lt: 0 },
+        })
+        .groupBy('category')
+        .select(['category', { amount: { $sum: '$amount' } }])
+        .options({ splits: 'all' });
+    },
+    [dateRange]
+  );
+
+  const accountBalances = useQuery(
+    () => {
+      return q('accounts')
+        .filter({ closed: false })
+        .select(['id', 'name', 'balance']);
+    },
+    []
+  );
+
+  // Calculate summary data from real budget data
+  const summaryData = useMemo(() => {
+    const totalIncome = incomeData.data?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0;
+    const totalExpenses = Math.abs(expenseData.data?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0);
+    const netIncome = totalIncome - totalExpenses;
+    const totalBalance = accountBalances.data?.reduce((sum, account) => sum + (account.balance || 0), 0) || 0;
+
+    return {
+      income: { amount: totalIncome, label: 'Income', color: '#10B981' },
+      expenses: { amount: totalExpenses, label: 'Expenses', color: '#F59E0B' },
+      netIncome: { amount: netIncome, label: 'Net Income', color: '#3B82F6' },
+      totalBalance: { amount: totalBalance, label: 'Total Balance', color: '#8B5CF6' },
+    };
+  }, [incomeData.data, expenseData.data, accountBalances.data]);
 
   // Sankey chart data
   const sankeyData = useMemo(() => {
