@@ -475,31 +475,69 @@ export function Home() {
       backgroundColor: theme.pageBackground,
       padding: 20,
     }}>
+      {/* Header with Date Filter */}
       <View style={{ marginBottom: 32 }}>
         <View style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginBottom: 8,
+          justifyContent: 'space-between',
+          marginBottom: 16,
         }}>
           <View style={{
-            backgroundColor: '#2563EB',
-            borderRadius: 6,
-            paddingHorizontal: 12,
-            paddingVertical: 4,
-            marginRight: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
           }}>
-            <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
-              2025
+            <View style={{
+              backgroundColor: '#2563EB',
+              borderRadius: 6,
+              paddingHorizontal: 12,
+              paddingVertical: 4,
+              marginRight: 12,
+            }}>
+              <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
+                {format(new Date(), 'yyyy')}
+              </Text>
+            </View>
+            <Text style={{
+              color: theme.pageText,
+              fontSize: 18,
+              fontWeight: 'bold'
+            }}>
+              {t('Financial Dashboard')}
             </Text>
           </View>
-          <Text style={{ 
-            color: theme.pageText, 
-            fontSize: 18, 
-            fontWeight: 'bold' 
+
+          {/* Date Range Filter */}
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
           }}>
-            Annual budget for 2025
-          </Text>
+            <SvgCalendar3 style={{
+              width: 16,
+              height: 16,
+              color: theme.pageText
+            }} />
+            <Select
+              value={selectedDateRange}
+              onChange={setSelectedDateRange}
+              options={dateRangeOptions}
+              style={{
+                minWidth: 160,
+                fontSize: 14,
+              }}
+            />
+          </View>
         </View>
+
+        {/* Date Range Display */}
+        <Text style={{
+          color: theme.pageTextSubdued,
+          fontSize: 12,
+          marginBottom: 8
+        }}>
+          {t('Period')}: {dateRange.start} {t('to')} {dateRange.end}
+        </Text>
       </View>
 
       {/* Summary Cards */}
@@ -519,16 +557,18 @@ export function Home() {
           color={summaryData.expenses.color}
         />
         <SummaryCard
-          amount={summaryData.endingBalance.amount}
-          label={summaryData.endingBalance.label}
-          color={summaryData.endingBalance.color}
-          percentage="-39%"
+          amount={summaryData.netIncome.amount}
+          label={summaryData.netIncome.label}
+          color={summaryData.netIncome.color}
+          percentage={summaryData.income.amount > 0 ?
+            `${(((summaryData.netIncome.amount / summaryData.income.amount) * 100)).toFixed(1)}%` :
+            '0%'
+          }
         />
         <SummaryCard
-          amount={summaryData.remainingBalance.amount}
-          label={summaryData.remainingBalance.label}
-          color={summaryData.remainingBalance.color}
-          percentage="-31%"
+          amount={summaryData.totalBalance.amount}
+          label={summaryData.totalBalance.label}
+          color={summaryData.totalBalance.color}
         />
       </View>
 
