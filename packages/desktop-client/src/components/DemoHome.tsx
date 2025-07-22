@@ -237,7 +237,7 @@ export function DemoHome() {
           fontSize: 12
         },
         padding: [8, 12],
-        formatter: function(params: any) {
+        formatter: function(params) {
           if (params.dataType === 'edge') {
             const totalIncome = summaryData.income.amount || 1;
             const percentage = ((params.data.value / totalIncome) * 100).toFixed(1);
@@ -292,7 +292,7 @@ export function DemoHome() {
               color: theme.pageText,
               fontWeight: 'bold',
               fontSize: 11,
-              formatter: function(params: any) {
+              formatter: function(params) {
                 return params.name.length > 12 ? params.name.slice(0, 12) + '...' : params.name;
               }
             }
