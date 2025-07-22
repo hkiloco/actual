@@ -423,8 +423,36 @@ export function Home() {
               opacity: 0.3,
             },
           },
-          data: sankeyData.nodes,
-          links: sankeyData.links,
+          data: sankeyData.nodes.map(node => ({
+            ...node,
+            itemStyle: {
+              color:
+                node.category === 'income' ? '#10B981' :
+                node.category === 'flow' ? '#6366F1' :
+                node.category === 'savings' ? '#8B5CF6' :
+                '#F59E0B',
+              borderWidth: 2,
+              borderColor: isDarkTheme ? '#374151' : '#FFFFFF',
+            }
+          })),
+          links: sankeyData.links.map(link => ({
+            ...link,
+            label: {
+              show: true,
+              position: 'middle',
+              formatter: function(params: any) {
+                const totalIncome = summaryData.income.amount || 1;
+                const percentage = ((params.data.value / totalIncome) * 100).toFixed(1);
+                return `${percentage}%`;
+              },
+              color: theme.pageText,
+              fontSize: 10,
+              fontWeight: 'bold',
+              backgroundColor: isDarkTheme ? 'rgba(55, 65, 81, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+              padding: [2, 4],
+              borderRadius: 3
+            }
+          })),
           lineStyle: {
             curveness: 0.5,
           },
