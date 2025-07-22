@@ -28,7 +28,7 @@ export function DemoHome() {
       { category: 'freelance', amount: 80000 }, // £800 in pence
       { category: 'investments', amount: 25000 }, // £250 in pence
     ],
-    isLoading: false
+    isLoading: false,
   };
 
   const expenseData = {
@@ -39,7 +39,7 @@ export function DemoHome() {
       { category: 'entertainment', amount: -8000 }, // £80 in pence
       { category: 'dining', amount: -15000 }, // £150 in pence
     ],
-    isLoading: false
+    isLoading: false,
   };
 
   const accountBalances = {
@@ -47,21 +47,32 @@ export function DemoHome() {
       { id: '1', name: 'Current Account', balance: 250000 }, // £2,500
       { id: '2', name: 'Savings Account', balance: 1500000 }, // £15,000
     ],
-    isLoading: false
+    isLoading: false,
   };
 
   // Calculate summary data from demo data
   const summaryData = useMemo(() => {
-    const totalIncome = incomeData.data?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0;
-    const totalExpenses = Math.abs(expenseData.data?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0);
+    const totalIncome =
+      incomeData.data?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0;
+    const totalExpenses = Math.abs(
+      expenseData.data?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0,
+    );
     const netIncome = totalIncome - totalExpenses;
-    const totalBalance = accountBalances.data?.reduce((sum, account) => sum + (account.balance || 0), 0) || 0;
+    const totalBalance =
+      accountBalances.data?.reduce(
+        (sum, account) => sum + (account.balance || 0),
+        0,
+      ) || 0;
 
     return {
       income: { amount: totalIncome, label: 'Income', color: '#10B981' },
       expenses: { amount: totalExpenses, label: 'Expenses', color: '#F59E0B' },
       netIncome: { amount: netIncome, label: 'Net Income', color: '#3B82F6' },
-      totalBalance: { amount: totalBalance, label: 'Total Balance', color: '#8B5CF6' },
+      totalBalance: {
+        amount: totalBalance,
+        label: 'Total Balance',
+        color: '#8B5CF6',
+      },
     };
   }, [incomeData.data, expenseData.data, accountBalances.data]);
 
@@ -111,12 +122,20 @@ export function DemoHome() {
           finalName = `${uniqueName} ${counter}`;
           counter++;
         }
-        nodes.set(finalName, { name: finalName, category: 'income', id: `income-${categoryId}` });
+        nodes.set(finalName, {
+          name: finalName,
+          category: 'income',
+          id: `income-${categoryId}`,
+        });
       }
     });
 
     // Main flow node
-    nodes.set('Total Income', { name: 'Total Income', category: 'flow', id: 'total-income' });
+    nodes.set('Total Income', {
+      name: 'Total Income',
+      category: 'flow',
+      id: 'total-income',
+    });
 
     // Expense categories - aggregate by category to avoid duplicates
     const expenseByCategory = new Map();
@@ -143,7 +162,11 @@ export function DemoHome() {
           uniqueName = `${baseName} ${counter}`;
           counter++;
         }
-        nodes.set(uniqueName, { name: uniqueName, category: 'expense', id: `expense-${categoryId}` });
+        nodes.set(uniqueName, {
+          name: uniqueName,
+          category: 'expense',
+          id: `expense-${categoryId}`,
+        });
       }
     });
 
@@ -151,7 +174,11 @@ export function DemoHome() {
     const totalIncome = summaryData.income.amount;
     const totalExpenses = summaryData.expenses.amount;
     if (totalIncome > totalExpenses) {
-      nodes.set('Net Savings', { name: 'Net Savings', category: 'savings', id: 'net-savings' });
+      nodes.set('Net Savings', {
+        name: 'Net Savings',
+        category: 'savings',
+        id: 'net-savings',
+      });
     }
 
     // Create links from income categories to total income
@@ -160,7 +187,7 @@ export function DemoHome() {
       if (category && category.name && category.name.trim()) {
         // Find the actual node name that was created
         const nodeEntry = Array.from(nodes.entries()).find(
-          ([name, node]) => node.id === `income-${categoryId}`
+          ([name, node]) => node.id === `income-${categoryId}`,
         );
         if (nodeEntry) {
           const [nodeName] = nodeEntry;
@@ -168,7 +195,7 @@ export function DemoHome() {
             source: nodeName,
             target: 'Total Income',
             value: Math.abs(amount),
-            id: `link-income-${categoryId}`
+            id: `link-income-${categoryId}`,
           });
         }
       }
@@ -180,7 +207,7 @@ export function DemoHome() {
       if (category && category.name && category.name.trim()) {
         // Find the actual node name that was created
         const nodeEntry = Array.from(nodes.entries()).find(
-          ([name, node]) => node.id === `expense-${categoryId}`
+          ([name, node]) => node.id === `expense-${categoryId}`,
         );
         if (nodeEntry) {
           const [nodeName] = nodeEntry;
@@ -188,7 +215,7 @@ export function DemoHome() {
             source: 'Total Income',
             target: nodeName,
             value: Math.abs(amount),
-            id: `link-expense-${categoryId}`
+            id: `link-expense-${categoryId}`,
           });
         }
       }
@@ -200,19 +227,21 @@ export function DemoHome() {
         source: 'Total Income',
         target: 'Net Savings',
         value: totalIncome - totalExpenses,
-        id: 'savings-link'
+        id: 'savings-link',
       });
     }
 
     return {
       nodes: Array.from(nodes.values()),
-      links: links.filter(link => link.value > 0) // Only include links with positive values
+      links: links.filter(link => link.value > 0), // Only include links with positive values
     };
   }, [incomeData.data, expenseData.data, demoCategories, summaryData]);
 
   // Chart configuration with theme support
   const chartOption = useMemo(() => {
-    const isDarkTheme = theme.pageBackground === '#1F2937' || theme.pageBackground?.includes('dark');
+    const isDarkTheme =
+      theme.pageBackground === '#1F2937' ||
+      theme.pageBackground?.includes('dark');
 
     return {
       title: {
@@ -222,8 +251,8 @@ export function DemoHome() {
         textStyle: {
           color: theme.pageText,
           fontSize: 16,
-          fontWeight: 'bold'
-        }
+          fontWeight: 'bold',
+        },
       },
       tooltip: {
         trigger: 'item',
@@ -234,13 +263,16 @@ export function DemoHome() {
         borderRadius: 8,
         textStyle: {
           color: isDarkTheme ? '#F9FAFB' : '#1F2937',
-          fontSize: 12
+          fontSize: 12,
         },
         padding: [8, 12],
-        formatter: function(params) {
+        formatter: function (params) {
           if (params.dataType === 'edge') {
             const totalIncome = summaryData.income.amount || 1;
-            const percentage = ((params.data.value / totalIncome) * 100).toFixed(1);
+            const percentage = (
+              (params.data.value / totalIncome) *
+              100
+            ).toFixed(1);
             return `
               <div style="font-weight: bold; margin-bottom: 4px;">${params.data.source} → ${params.data.target}</div>
               <div>Amount: ${formatCurrency(params.data.value)}</div>
@@ -252,7 +284,7 @@ export function DemoHome() {
               <div>Category: ${params.data?.category || 'N/A'}</div>
             `;
           }
-        }
+        },
       },
       animation: true,
       animationDuration: 1500,
@@ -264,16 +296,16 @@ export function DemoHome() {
           emphasis: {
             focus: 'adjacency',
             lineStyle: {
-              opacity: 0.9
-            }
+              opacity: 0.9,
+            },
           },
           blur: {
             lineStyle: {
-              opacity: 0.1
+              opacity: 0.1,
             },
             label: {
-              opacity: 0.3
-            }
+              opacity: 0.3,
+            },
           },
           data: sankeyData.nodes.map((node, index) => ({
             name: node.name,
@@ -281,21 +313,26 @@ export function DemoHome() {
             id: node.id || `node-${index}`,
             itemStyle: {
               color:
-                node.category === 'income' ? '#10B981' :
-                node.category === 'flow' ? '#6366F1' :
-                node.category === 'savings' ? '#8B5CF6' :
-                '#F59E0B',
+                node.category === 'income'
+                  ? '#10B981'
+                  : node.category === 'flow'
+                    ? '#6366F1'
+                    : node.category === 'savings'
+                      ? '#8B5CF6'
+                      : '#F59E0B',
               borderColor: isDarkTheme ? '#374151' : '#E5E7EB',
-              borderWidth: 1
+              borderWidth: 1,
             },
             label: {
               color: theme.pageText,
               fontWeight: 'bold',
               fontSize: 11,
-              formatter: function(params) {
-                return params.name.length > 12 ? params.name.slice(0, 12) + '...' : params.name;
-              }
-            }
+              formatter: function (params) {
+                return params.name.length > 12
+                  ? params.name.slice(0, 12) + '...'
+                  : params.name;
+              },
+            },
           })),
           links: sankeyData.links.map((link, index) => ({
             ...link,
@@ -303,23 +340,23 @@ export function DemoHome() {
             lineStyle: {
               color: 'source',
               opacity: 0.6,
-              curveness: 0.5
+              curveness: 0.5,
             },
             emphasis: {
               lineStyle: {
                 opacity: 0.8,
-                width: 4
-              }
-            }
+                width: 4,
+              },
+            },
           })),
           lineStyle: {
-            curveness: 0.5
+            curveness: 0.5,
           },
           label: {
             position: 'right',
             formatter: '{b}',
             color: theme.pageText,
-            fontSize: 11
+            fontSize: 11,
           },
           left: '3%',
           right: '3%',
@@ -328,8 +365,8 @@ export function DemoHome() {
           nodeWidth: 20,
           nodeGap: 8,
           draggable: false,
-          focusNodeAdjacency: 'allEdges'
-        }
+          focusNodeAdjacency: 'allEdges',
+        },
       ],
       toolbox: {
         show: true,
@@ -339,30 +376,31 @@ export function DemoHome() {
             title: 'Export as PNG',
             backgroundColor: theme.pageBackground,
             pixelRatio: 2,
-            name: 'income-flow-analysis'
+            name: 'income-flow-analysis',
           },
           restore: {
             show: true,
-            title: 'Reset View'
-          }
+            title: 'Reset View',
+          },
         },
         right: '3%',
         top: '3%',
         iconStyle: {
           borderColor: theme.pageText,
-          color: 'transparent'
+          color: 'transparent',
         },
         emphasis: {
           iconStyle: {
             borderColor: '#3B82F6',
-            color: '#3B82F6'
-          }
-        }
+            color: '#3B82F6',
+          },
+        },
       },
       backgroundColor: 'transparent',
       textStyle: {
-        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }
+        fontFamily:
+          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      },
     };
   }, [sankeyData, theme, formatCurrency, summaryData]);
 
@@ -373,7 +411,7 @@ export function DemoHome() {
       const dataURL = chartInstance.getDataURL({
         type: 'png',
         pixelRatio: 2,
-        backgroundColor: theme.pageBackground
+        backgroundColor: theme.pageBackground,
       });
 
       const link = document.createElement('a');
@@ -388,7 +426,7 @@ export function DemoHome() {
     label,
     color,
     percentage,
-    cardId
+    cardId,
   }: {
     amount: number;
     label: string;
@@ -434,15 +472,19 @@ export function DemoHome() {
           />
         </svg>
       </View>
-      
-      <Text style={{ color: 'white', fontSize: 14, opacity: 0.9, marginBottom: 8 }}>
+
+      <Text
+        style={{ color: 'white', fontSize: 14, opacity: 0.9, marginBottom: 8 }}
+      >
         {label}
       </Text>
       <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold' }}>
         {formatCurrency(amount)}
       </Text>
       {percentage && (
-        <Text style={{ color: 'white', fontSize: 12, opacity: 0.8, marginTop: 4 }}>
+        <Text
+          style={{ color: 'white', fontSize: 12, opacity: 0.8, marginTop: 4 }}
+        >
           {percentage}
         </Text>
       )}
@@ -453,55 +495,67 @@ export function DemoHome() {
   const isLoading = false;
 
   return (
-    <View style={{
-      flex: 1,
-      backgroundColor: theme.pageBackground,
-      padding: 20,
-    }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: theme.pageBackground,
+        padding: 20,
+      }}
+    >
       {/* Header */}
       <View style={{ marginBottom: 32 }}>
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: 16,
-        }}>
-          <View style={{
-            backgroundColor: '#2563EB',
-            borderRadius: 6,
-            paddingHorizontal: 12,
-            paddingVertical: 4,
-            marginRight: 12,
-          }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 16,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: '#2563EB',
+              borderRadius: 6,
+              paddingHorizontal: 12,
+              paddingVertical: 4,
+              marginRight: 12,
+            }}
+          >
             <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
               {format(new Date(), 'yyyy')}
             </Text>
           </View>
-          <Text style={{
-            color: theme.pageText,
-            fontSize: 18,
-            fontWeight: 'bold'
-          }}>
+          <Text
+            style={{
+              color: theme.pageText,
+              fontSize: 18,
+              fontWeight: 'bold',
+            }}
+          >
             {t('Financial Dashboard Demo')}
           </Text>
         </View>
 
         {/* All-time Data Display */}
-        <Text style={{
-          color: theme.pageTextSubdued,
-          fontSize: 12,
-          marginBottom: 8
-        }}>
+        <Text
+          style={{
+            color: theme.pageTextSubdued,
+            fontSize: 12,
+            marginBottom: 8,
+          }}
+        >
           {t('Showing demo data from all accounts - All time')}
         </Text>
       </View>
 
       {/* Summary Cards */}
-      <View style={{
-        flexDirection: 'row',
-        gap: 16,
-        marginBottom: 32,
-        opacity: isLoading ? 0.5 : 1,
-      }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 16,
+          marginBottom: 32,
+          opacity: isLoading ? 0.5 : 1,
+        }}
+      >
         <SummaryCard
           key="income-card"
           cardId="income"
@@ -522,9 +576,10 @@ export function DemoHome() {
           amount={summaryData.netIncome.amount}
           label={summaryData.netIncome.label}
           color={summaryData.netIncome.color}
-          percentage={summaryData.income.amount > 0 ?
-            `${(((summaryData.netIncome.amount / summaryData.income.amount) * 100)).toFixed(1)}%` :
-            '0%'
+          percentage={
+            summaryData.income.amount > 0
+              ? `${((summaryData.netIncome.amount / summaryData.income.amount) * 100).toFixed(1)}%`
+              : '0%'
           }
         />
         <SummaryCard
@@ -537,23 +592,27 @@ export function DemoHome() {
       </View>
 
       {/* Sankey Diagram Area */}
-      <View style={{
-        flex: 1,
-        backgroundColor: theme.tableBackground,
-        borderRadius: 12,
-        padding: 20,
-        minHeight: 450,
-        position: 'relative',
-      }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.tableBackground,
+          borderRadius: 12,
+          padding: 20,
+          minHeight: 450,
+          position: 'relative',
+        }}
+      >
         {/* Chart Controls */}
-        <View style={{
-          position: 'absolute',
-          top: 16,
-          right: 16,
-          zIndex: 10,
-          flexDirection: 'row',
-          gap: 8,
-        }}>
+        <View
+          style={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            zIndex: 10,
+            flexDirection: 'row',
+            gap: 8,
+          }}
+        >
           <Button
             variant="bare"
             onPress={handleExportChart}
@@ -564,11 +623,13 @@ export function DemoHome() {
               borderColor: theme.buttonNormalBorder,
             }}
           >
-            <Text style={{
-              fontSize: 11,
-              color: theme.buttonNormalText,
-              fontWeight: 'bold'
-            }}>
+            <Text
+              style={{
+                fontSize: 11,
+                color: theme.buttonNormalText,
+                fontWeight: 'bold',
+              }}
+            >
               Export PNG
             </Text>
           </Button>
@@ -581,68 +642,91 @@ export function DemoHome() {
             style={{
               height: '100%',
               width: '100%',
-              minHeight: 400
+              minHeight: 400,
             }}
             opts={{
               renderer: 'svg',
               width: 'auto',
-              height: 'auto'
+              height: 'auto',
             }}
             notMerge={true}
             lazyUpdate={true}
           />
         ) : (
-          <View style={{
-            height: 400,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+          <View
+            style={{
+              height: 400,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <Text style={{ color: theme.pageText, textAlign: 'center' }}>
               {t('No financial data available for the selected period.')}
               <br />
-              {t('Try selecting a different date range or check your transactions.')}
+              {t(
+                'Try selecting a different date range or check your transactions.',
+              )}
             </Text>
           </View>
         )}
 
         {/* Chart Legend */}
-        <View style={{
-          position: 'absolute',
-          bottom: 16,
-          left: 16,
-          flexDirection: 'row',
-          gap: 16,
-          backgroundColor: theme.pageBackground,
-          padding: 12,
-          borderRadius: 8,
-          borderWidth: 1,
-          borderColor: theme.tableBorder,
-        }}>
-          <View key="legend-income" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={{
-              width: 12,
-              height: 12,
-              backgroundColor: '#10B981',
-              borderRadius: 2,
-            }} />
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 16,
+            left: 16,
+            flexDirection: 'row',
+            gap: 16,
+            backgroundColor: theme.pageBackground,
+            padding: 12,
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: theme.tableBorder,
+          }}
+        >
+          <View
+            key="legend-income"
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+          >
+            <View
+              style={{
+                width: 12,
+                height: 12,
+                backgroundColor: '#10B981',
+                borderRadius: 2,
+              }}
+            />
             <Text style={{ fontSize: 11, color: theme.pageText }}>Income</Text>
           </View>
-          <View key="legend-expenses" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={{
-              width: 12,
-              height: 12,
-              backgroundColor: '#F59E0B',
-              borderRadius: 2,
-            }} />
-            <Text style={{ fontSize: 11, color: theme.pageText }}>Expenses</Text>
+          <View
+            key="legend-expenses"
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+          >
+            <View
+              style={{
+                width: 12,
+                height: 12,
+                backgroundColor: '#F59E0B',
+                borderRadius: 2,
+              }}
+            />
+            <Text style={{ fontSize: 11, color: theme.pageText }}>
+              Expenses
+            </Text>
           </View>
-          <View key="legend-savings" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={{
-              width: 12,
-              height: 12,
-              backgroundColor: '#8B5CF6',
-              borderRadius: 2,
-            }} />
+          <View
+            key="legend-savings"
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+          >
+            <View
+              style={{
+                width: 12,
+                height: 12,
+                backgroundColor: '#8B5CF6',
+                borderRadius: 2,
+              }}
+            />
             <Text style={{ fontSize: 11, color: theme.pageText }}>Savings</Text>
           </View>
         </View>
