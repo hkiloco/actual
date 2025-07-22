@@ -463,16 +463,18 @@ export function Home() {
     }
   }, [theme.pageBackground]);
 
-  const SummaryCard = ({ 
-    amount, 
-    label, 
-    color, 
-    percentage 
-  }: { 
-    amount: number; 
-    label: string; 
-    color: string; 
-    percentage?: string; 
+  const SummaryCard = ({
+    amount,
+    label,
+    color,
+    percentage,
+    cardId
+  }: {
+    amount: number;
+    label: string;
+    color: string;
+    percentage?: string;
+    cardId: string;
   }) => (
     <View
       style={{
@@ -497,12 +499,14 @@ export function Home() {
       >
         <svg width="60" height="40" viewBox="0 0 60 40">
           <path
+            key={`${cardId}-path-1`}
             d="M0,20 Q15,10 30,20 T60,20"
             stroke="rgba(255,255,255,0.3)"
             strokeWidth="2"
             fill="none"
           />
           <path
+            key={`${cardId}-path-2`}
             d="M0,30 Q20,15 40,30 T60,30"
             stroke="rgba(255,255,255,0.2)"
             strokeWidth="1.5"
