@@ -50,6 +50,34 @@ export function Home() {
     }
   }
 
+  // Queries for real transaction data
+  const incomeQuery = useMemo(() =>
+    q('transactions')
+      .filter({ amount: { $gt: 0 } })
+      .select(['*', { categoryName: { $id: '$category.name' }, categoryIncome: { $id: '$category.is_income' } }])
+      .orderBy({ date: 'desc' }),
+    []
+  );
+
+  const expenseQuery = useMemo(() =>
+    q('transactions')
+      .filter({ amount: { $lt: 0 } })
+      .select(['*', { categoryName: { $id: '$category.name' }, categoryIncome: { $id: '$category.is_income' } }])
+      .orderBy({ date: 'desc' }),
+    []
+  );
+
+  // Use real transaction data if available
+  const incomeTransactionResult = canUseHooks ? useTransactions({
+    query: incomeQuery,
+    options: { pageCount: 1000 }
+  }) : { transactions: [], isLoading: false };
+
+  const expenseTransactionResult = canUseHooks ? useTransactions({
+    query: expenseQuery,
+    options: { pageCount: 1000 }
+  }) : { transactions: [], isLoading: false };
+
   // Currency formatting function - updated to GBP
   const formatCurrency = useCallback((amount: number) => {
     return new Intl.NumberFormat('en-GB', {
