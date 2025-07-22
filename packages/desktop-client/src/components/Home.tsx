@@ -625,18 +625,21 @@ export function Home() {
       }}>
         <SummaryCard
           key="income-card"
+          cardId="income"
           amount={summaryData.income.amount}
           label={summaryData.income.label}
           color={summaryData.income.color}
         />
         <SummaryCard
           key="expenses-card"
+          cardId="expenses"
           amount={summaryData.expenses.amount}
           label={summaryData.expenses.label}
           color={summaryData.expenses.color}
         />
         <SummaryCard
           key="net-income-card"
+          cardId="net-income"
           amount={summaryData.netIncome.amount}
           label={summaryData.netIncome.label}
           color={summaryData.netIncome.color}
@@ -647,6 +650,7 @@ export function Home() {
         />
         <SummaryCard
           key="total-balance-card"
+          cardId="total-balance"
           amount={summaryData.totalBalance.amount}
           label={summaryData.totalBalance.label}
           color={summaryData.totalBalance.color}
