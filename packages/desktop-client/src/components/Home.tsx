@@ -327,9 +327,10 @@ export function Home() {
               opacity: 0.3
             }
           },
-          data: sankeyData.nodes.map(node => ({
+          data: sankeyData.nodes.map((node, index) => ({
             name: node.name,
             category: node.category,
+            id: node.id || `node-${index}`,
             itemStyle: {
               color:
                 node.category === 'income' ? '#10B981' :
@@ -348,8 +349,9 @@ export function Home() {
               }
             }
           })),
-          links: sankeyData.links.map(link => ({
+          links: sankeyData.links.map((link, index) => ({
             ...link,
+            id: link.id || `link-${index}`,
             lineStyle: {
               color: 'source',
               opacity: 0.6,
