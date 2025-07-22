@@ -158,13 +158,30 @@ export function Home() {
     };
   }, [canUseHooks, expenseTransactionResult.transactions, expenseTransactionResult.isLoading]);
 
-  const accountBalances = {
-    data: [
-      { id: '1', name: 'Current Account', balance: 250000 }, // £2,500
-      { id: '2', name: 'Savings Account', balance: 1500000 }, // £15,000
-    ],
-    isLoading: false,
-  };
+  const accountBalances = useMemo(() => {
+    if (!canUseHooks || !accounts.length) {
+      // Fallback to demo data if no real data available
+      return {
+        data: [
+          { id: '1', name: 'Current Account', balance: 250000 }, // £2,500
+          { id: '2', name: 'Savings Account', balance: 1500000 }, // £15,000
+        ],
+        isLoading: false
+      };
+    }
+
+    // Use real account data
+    const data = accounts.map(account => ({
+      id: account.id,
+      name: account.name,
+      balance: account.balance || 0
+    }));
+
+    return {
+      data,
+      isLoading: false
+    };
+  }, [canUseHooks, accounts]);
 
   // Calculate summary data from real budget data
   const summaryData = useMemo(() => {
