@@ -1,0 +1,559 @@
+diff --git a/packages/desktop-client/src/components/Home.tsx b/packages/desktop-client/src/components/Home.tsx
+index 91d3a848..1d0307fe 100644
+--- a/packages/desktop-client/src/components/Home.tsx
++++ b/packages/desktop-client/src/components/Home.tsx
+@@ -1,4 +1,4 @@
+-import React, { useMemo, useCallback, useRef } from 'react';
++import React, { useMemo, useCallback, useRef, useEffect } from 'react';
+ import { useTranslation } from 'react-i18next';
+ import ReactECharts from 'echarts-for-react';
+ import { format } from 'date-fns';
+@@ -11,6 +11,8 @@ import { Button } from '@actual-app/components/button';
+ import { useAccounts } from '@desktop-client/hooks/useAccounts';
+ import { useCategories } from '@desktop-client/hooks/useCategories';
+ import { useSyncedPref } from '@desktop-client/hooks/useSyncedPref';
++import { useTransactions } from '@desktop-client/hooks/useTransactions';
++import { q } from 'loot-core/shared/query';
+ 
+ export function Home() {
+   const { t } = useTranslation();
+@@ -18,6 +20,15 @@ export function Home() {
+ 
++  // Force chart resize after mount to ensure proper rendering
++  useEffect(() => {
++    const timer = setTimeout(() => {
++      if (chartRef.current) {
++        const chartInstance = chartRef.current.getEchartsInstance();
++        chartInstance?.resize();
++      }
++    }, 100);
++
++    return () => clearTimeout(timer);
++  }, []);
+ 
+   // Try to get real data, but fallback to demo data if not available
+   let accounts = [];
+@@ -38,6 +49,35 @@ export function Home() {
+     }
+   }
+ 
++  // Queries for real transaction data
++  const incomeQuery = useMemo(
++    () =>
++      q('transactions')
++        .filter({ amount: { $gt: 0 } })
++        .select([
++          '*',
++          {
++            categoryName: { $id: '$category.name' },
++            categoryIncome: { $id: '$category.is_income' },
++          },
++        ])
++        .orderBy({ date: 'desc' }),
++    [],
++  );
++
++  const expenseQuery = useMemo(
++    () =>
++      q('transactions')
++        .filter({ amount: { $lt: 0 } })
++        .select([
++          '*',
++          {
++            categoryName: { $id: '$category.name' },
++            categoryIncome: { $id: '$category.is_income' },
++          },
++        ])
++        .orderBy({ date: 'desc' }),
++    [],
++  );
++
++  // Use real transaction data if available
++  const incomeTransactionResult = canUseHooks
++    ? useTransactions({
++        query: incomeQuery,
++        options: { pageCount: 1000 },
++      })
++    : { transactions: [], isLoading: false };
++
++  const expenseTransactionResult = canUseHooks
++    ? useTransactions({
++        query: expenseQuery,
++        options: { pageCount: 1000 },
++      })
++    : { transactions: [], isLoading: false };
+ 
+   // Currency formatting function - updated to GBP
+   const formatCurrency = useCallback((amount: number) => {
+@@ -48,26 +88,84 @@ export function Home() {
+     }).format(amount / 100); // Convert from cents to pounds
+   }, []);
+ 
+-  // Mock data for now - will implement real queries later
+-  const incomeData = {
+-    data: [
+-      { category: 'salary', amount: 350000 }, // £3,500 in pence
+-      { category: 'freelance', amount: 80000 }, // £800 in pence
+-      { category: 'investments', amount: 25000 }, // £250 in pence
+-    ],
+-    isLoading: false
+-  };
++  // Process real transaction data by category
++  const incomeData = useMemo(() => {
++    if (!canUseHooks || !incomeTransactionResult.transactions.length) {
++      // Fallback to demo data if no real data available
++      return {
++        data: [
++          { category: 'salary', amount: 350000 }, // £3,500 in pence
++          { category: 'freelance', amount: 80000 }, // £800 in pence
++          { category: 'investments', amount: 25000 }, // £250 in pence
++        ],
++        isLoading: false,
++      };
++    }
++
++    // Group income transactions by category and sum amounts
++    const categoryTotals = new Map();
++    incomeTransactionResult.transactions.forEach(transaction => {
++      const categoryName = transaction.categoryName || 'Uncategorized';
++      const existing = categoryTotals.get(categoryName) || 0;
++      categoryTotals.set(categoryName, existing + transaction.amount);
++    });
++
++    // Convert to array format
++    const data = Array.from(categoryTotals.entries()).map(
++      ([category, amount]) => ({
++        category: category.toLowerCase().replace(/\s+/g, '-'),
++        categoryName: category,
++        amount: amount,
++      }),
++    );
++
++    return {
++      data,
++      isLoading: incomeTransactionResult.isLoading,
++    };
++  }, [
++    canUseHooks,
++    incomeTransactionResult.transactions,
++    incomeTransactionResult.isLoading,
++  ]);
++
++  const expenseData = useMemo(() => {
++    if (!canUseHooks || !expenseTransactionResult.transactions.length) {
++      // Fallback to demo data if no real data available
++      return {
++        data: [
++          { category: 'groceries', amount: -45000 }, // £450 in pence
++          { category: 'utilities', amount: -18000 }, // £180 in pence
++          { category: 'transport', amount: -12000 }, // £120 in pence
++          { category: 'entertainment', amount: -8000 }, // £80 in pence
++          { category: 'dining', amount: -15000 }, // £150 in pence
++        ],
++        isLoading: false,
++      };
++    }
++
++    // Group expense transactions by category and sum amounts
++    const categoryTotals = new Map();
++    expenseTransactionResult.transactions.forEach(transaction => {
++      const categoryName = transaction.categoryName || 'Uncategorized';
++      const existing = categoryTotals.get(categoryName) || 0;
++      categoryTotals.set(categoryName, existing + transaction.amount);
++    });
++
++    // Convert to array format
++    const data = Array.from(categoryTotals.entries()).map(
++      ([category, amount]) => ({
++        category: category.toLowerCase().replace(/\s+/g, '-'),
++        categoryName: category,
++        amount: amount,
++      }),
++    );
++
++    return {
++      data,
++      isLoading: expenseTransactionResult.isLoading,
++    };
++  }, [
++    canUseHooks,
++    expenseTransactionResult.transactions,
++    expenseTransactionResult.isLoading,
++  ]);
++
++  const accountBalances = useMemo(() => {
++    if (!canUseHooks || !accounts.length) {
++      // Fallback to demo data if no real data available
++      return {
++        data: [
++          { id: '1', name: 'Current Account', balance: 250000 }, // £2,500
++          { id: '2', name: 'Savings Account', balance: 1500000 }, // £15,000
++        ],
++        isLoading: false,
++      };
++    }
++
++    // Use real account data
++    const data = accounts.map(account => ({
++      id: account.id,
++      name: account.name,
++      balance: account.balance || 0,
++    }));
++
++    return {
++      data,
++      isLoading: false,
++    };
++  }, [canUseHooks, accounts]);
+ 
+-  const expenseData = {
+-    data: [
+-      { category: 'groceries', amount: -45000 }, // £450 in pence
+-      { category: 'utilities', amount: -18000 }, // £180 in pence
+-      { category: 'transport', amount: -12000 }, // £120 in pence
+-      { category: 'entertainment', amount: -8000 }, // £80 in pence
+-      { category: 'dining', amount: -15000 }, // £150 in pence
+-    ],
+-    isLoading: false
+-  };
+-
+-  const accountBalances = {
+-    data: [
+-      { id: '1', name: 'Current Account', balance: 250000 }, // £2,500
+-      { id: '2', name: 'Savings Account', balance: 1500000 }, // £15,000
+-    ],
+-    isLoading: false
+-  };
+-
+   // Calculate summary data from real budget data
+   const summaryData = useMemo(() => {
+     const totalIncome = incomeData.data?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0;
+@@ -75,11 +173,31 @@ export function Home() {
+     const netIncome = totalIncome - totalExpenses;
+     const totalBalance = accountBalances.data?.reduce((sum, account) => sum + (account.balance || 0), 0) || 0;
+ 
++    // Calculate percentages like in the reference image
++    const incomePercentage = totalIncome > 0 ? '100%' : '0%';
++    const expensePercentage =
++      totalIncome > 0
++        ? `${((totalExpenses / totalIncome) * 100).toFixed(0)}%`
++        : '0%';
++    const netIncomePercentage =
++      totalIncome > 0
++        ? `${((netIncome / totalIncome) * 100).toFixed(0)}%`
++        : '0%';
++    const savingsRate =
++      totalIncome > 0
++        ? `${((netIncome / totalIncome) * 100).toFixed(0)}%`
++        : '0%';
++
+     return {
+-      income: { amount: totalIncome, label: 'Income', color: '#10B981' },
+-      expenses: { amount: totalExpenses, label: 'Expenses', color: '#F59E0B' },
+-      netIncome: { amount: netIncome, label: 'Net Income', color: '#3B82F6' },
+-      totalBalance: { amount: totalBalance, label: 'Total Balance', color: '#8B5CF6' },
++      income: { 
++        amount: totalIncome, 
++        label: 'Income', 
++        color: '#10B981',
++        percentage: incomePercentage,
++      },
++      expenses: { 
++        amount: totalExpenses, 
++        label: 'Expenses', 
++        color: '#F59E0B',
++        percentage: expensePercentage,
++      },
++      netIncome: { 
++        amount: netIncome, 
++        label: 'Ending Balance', 
++        color: '#3B82F6',
++        percentage: netIncomePercentage,
++      },
++      totalBalance: {
++        amount: totalBalance,
++        label: 'Remaining Balance until 2025',
++        color: '#8B5CF6',
++        percentage: savingsRate,
++      },
+     };
+   }, [incomeData.data, expenseData.data, accountBalances.data]);
+ 
+@@ -119,33 +237,65 @@ export function Home() {
+   // Use real categories if available, otherwise use mock
+   const activeCategories = categories.length > 0 ? categories : mockCategories;
+ 
+-  // Simplified Sankey chart data using the same structure as the working demo
++  // Dynamic Sankey chart data using real financial data
+   const sankeyData = useMemo(() => {
+-    // Use the exact same data structure that works in the standalone demo
+-    const nodes = [
+-      { name: 'Salary (Income)', category: 'income' },
+-      { name: 'Freelance (Income)', category: 'income' },
+-      { name: 'Investments (Income)', category: 'income' },
+-      { name: 'Total Income', category: 'flow' },
+-      { name: 'Groceries', category: 'expense' },
+-      { name: 'Utilities', category: 'expense' },
+-      { name: 'Transport', category: 'expense' },
+-      { name: 'Entertainment', category: 'expense' },
+-      { name: 'Dining Out', category: 'expense' },
+-      { name: 'Net Savings', category: 'savings' }
+-    ];
++    const nodes = [];
++    const links = [];
++
++    // If no real data available, use demo structure
++    if (!incomeData.data.length && !expenseData.data.length) {
++      return {
++        nodes: [
++          { name: 'Salary (Income)', category: 'income' },
++          { name: 'Freelance (Income)', category: 'income' },
++          { name: 'Investments (Income)', category: 'income' },
++          { name: 'Total Income', category: 'flow' },
++          { name: 'Groceries', category: 'expense' },
++          { name: 'Utilities', category: 'expense' },
++          { name: 'Transport', category: 'expense' },
++          { name: 'Entertainment', category: 'expense' },
++          { name: 'Dining Out', category: 'expense' },
++          { name: 'Net Savings', category: 'savings' },
++        ],
++        links: [
++          { source: 'Salary (Income)', target: 'Total Income', value: 350000 },
++          {
++            source: 'Freelance (Income)',
++            target: 'Total Income',
++            value: 80000,
++          },
++          {
++            source: 'Investments (Income)',
++            target: 'Total Income',
++            value: 25000,
++          },
++          { source: 'Total Income', target: 'Groceries', value: 45000 },
++          { source: 'Total Income', target: 'Utilities', value: 18000 },
++          { source: 'Total Income', target: 'Transport', value: 12000 },
++          { source: 'Total Income', target: 'Entertainment', value: 8000 },
++          { source: 'Total Income', target: 'Dining Out', value: 15000 },
++          { source: 'Total Income', target: 'Net Savings', value: 357000 },
++        ],
++      };
++    }
++
++    // Add income category nodes and links
++    incomeData.data.forEach(item => {
++      if (item.amount > 0) {
++        const nodeName = `${item.categoryName || item.category} (Income)`;
++        nodes.push({ name: nodeName, category: 'income' });
++        links.push({
++          source: nodeName,
++          target: 'Total Income',
++          value: Math.abs(item.amount),
++        });
++      }
++    });
++
++    // Add central flow node
++    nodes.push({ name: 'Total Income', category: 'flow' });
++
++    // Add expense category nodes and links
++    expenseData.data.forEach(item => {
++      if (item.amount < 0) {
++        const nodeName = item.categoryName || item.category;
++        nodes.push({ name: nodeName, category: 'expense' });
++        links.push({
++          source: 'Total Income',
++          target: nodeName,
++          value: Math.abs(item.amount),
++        });
++      }
++    });
++
++    // Add savings node if there's net positive income
++    const totalIncome = summaryData.income.amount;
++    const totalExpenses = summaryData.expenses.amount;
++    if (totalIncome > totalExpenses) {
++      nodes.push({ name: 'Net Savings', category: 'savings' });
++      links.push({
++        source: 'Total Income',
++        target: 'Net Savings',
++        value: totalIncome - totalExpenses,
++      });
++    }
+ 
+-    const links = [
+-      { source: 'Salary (Income)', target: 'Total Income', value: 350000 },
+-      { source: 'Freelance (Income)', target: 'Total Income', value: 80000 },
+-      { source: 'Investments (Income)', target: 'Total Income', value: 25000 },
+-      { source: 'Total Income', target: 'Groceries', value: 45000 },
+-      { source: 'Total Income', target: 'Utilities', value: 18000 },
+-      { source: 'Total Income', target: 'Transport', value: 12000 },
+-      { source: 'Total Income', target: 'Entertainment', value: 8000 },
+-      { source: 'Total Income', target: 'Dining Out', value: 15000 },
+-      { source: 'Total Income', target: 'Net Savings', value: 357000 }
+-    ];
+-
+     return { nodes, links };
+-  }, []);
++  }, [incomeData.data, expenseData.data, summaryData]);
+ 
+   // Chart configuration with theme support
+   const chartOption = useMemo(() => {
+@@ -154,13 +304,6 @@ export function Home() {
+       theme.pageBackground?.includes('dark');
+ 
+     return {
+-      title: {
+-        text: 'Income Flow Analysis',
+-        left: 'center',
+-        top: '2%',
+-        textStyle: {
+-          color: theme.pageText,
+-          fontSize: 16,
+-          fontWeight: 'bold'
+-        }
+-      },
+       tooltip: {
+         trigger: 'item',
+         triggerOn: 'mousemove',
+@@ -191,22 +334,73 @@ export function Home() {
+         },
+       ],
+       series: [{
+         name: 'Income Flow',
+         type: 'sankey',
+         layout: 'none',
+         emphasis: {
+           focus: 'adjacency',
+           lineStyle: {
+             opacity: 0.9
+           }
+         },
+         blur: {
+           lineStyle: {
+             opacity: 0.1
+           },
+           label: {
+             opacity: 0.3
+           }
+         },
+-        data: sankeyData.nodes,
+-        links: sankeyData.links,
++        data: sankeyData.nodes.map(node => ({
++          ...node,
++          itemStyle: {
++            color:
++              node.category === 'income'
++                ? '#22C55E' // Brighter green
++                : node.category === 'flow'
++                  ? '#3B82F6' // Brighter blue
++                  : node.category === 'savings'
++                    ? '#A855F7' // Brighter purple
++                    : '#F97316', // Brighter orange
++            borderWidth: 2,
++            borderColor: isDarkTheme ? '#1F2937' : '#FFFFFF',
++            shadowColor: isDarkTheme
++              ? 'rgba(0, 0, 0, 0.5)'
++              : 'rgba(0, 0, 0, 0.1)',
++            shadowBlur: 4,
++            shadowOffsetX: 1,
++            shadowOffsetY: 1,
++          },
++          label: {
++            color: '#FFFFFF',
++            fontWeight: 'bold',
++            fontSize: 12,
++          },
++        })),
++        links: sankeyData.links.map((link, index) => ({
++          ...link,
++          lineStyle: {
++            color: 'source',
++            opacity: 0.8,
++            curveness: 0.5,
++            width: Math.max(3, Math.sqrt(link.value / 1000)), // Dynamic width based on value
++          },
++          emphasis: {
++            lineStyle: {
++              opacity: 1,
++              width: Math.max(5, Math.sqrt(link.value / 800)),
++            },
++          },
++          label: {
++            show: true,
++            position: 'middle',
++            formatter: function (params: any) {
++              const totalIncome = summaryData.income.amount || 1;
++              const percentage = (
++                (params.data.value / totalIncome) *
++                100
++              ).toFixed(1);
++              return `${percentage}%`;
++            },
++            color: '#FFFFFF',
++            fontSize: 11,
++            fontWeight: 'bold',
++            backgroundColor: isDarkTheme
++              ? 'rgba(0, 0, 0, 0.7)'
++              : 'rgba(255, 255, 255, 0.9)',
++            padding: [3, 6],
++            borderRadius: 4,
++            borderWidth: 1,
++            borderColor: isDarkTheme ? '#374151' : '#E5E7EB',
++          },
++        })),
+         lineStyle: {
+           curveness: 0.5
+         },
+         label: {
+           position: 'right',
+           formatter: '{b}',
+-          color: theme.pageText,
++          color: '#FFFFFF',
+           fontSize: 11
+         },
+         left: '3%',
+-        right: '3%',
+-        top: '12%',
++        right: '20%',
++        top: '5%',
+         bottom: '8%',
+         nodeWidth: 15,
+         nodeGap: 12,
+@@ -275,11 +469,11 @@ export function Home() {
+         <SummaryCard
+           key="income-card"
+           cardId="income"
+           amount={summaryData.income.amount}
+           label={summaryData.income.label}
+           color={summaryData.income.color}
++          percentage={summaryData.income.percentage}
+         />
+         <SummaryCard
+           key="expenses-card"
+           cardId="expenses"
+           amount={summaryData.expenses.amount}
+           label={summaryData.expenses.label}
+           color={summaryData.expenses.color}
++          percentage={summaryData.expenses.percentage}
+         />
+         <SummaryCard
+           key="net-income-card"
+           cardId="net-income"
+           amount={summaryData.netIncome.amount}
+           label={summaryData.netIncome.label}
+           color={summaryData.netIncome.color}
+-          percentage={summaryData.income.amount > 0 ?
+-            `${(((summaryData.netIncome.amount / summaryData.income.amount) * 100)).toFixed(1)}%` :
+-            '0%'
+-          }
++          percentage={summaryData.netIncome.percentage}
+         />
+         <SummaryCard
+           key="total-balance-card"
+           cardId="total-balance"
+           amount={summaryData.totalBalance.amount}
+           label={summaryData.totalBalance.label}
+           color={summaryData.totalBalance.color}
++          percentage={summaryData.totalBalance.percentage}
+         />
+       </View>
