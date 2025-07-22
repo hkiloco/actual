@@ -1,13 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 import { Text } from '@actual-app/components/text';
+import { Button } from '@actual-app/components/button';
 
 export function Home() {
   const { t } = useTranslation();
+  const chartRef = useRef<ReactECharts>(null);
 
   // Mock data - in a real implementation, this would come from your data hooks
   const summaryData = {
@@ -71,6 +73,176 @@ export function Home() {
       ]
     };
   }, []);
+
+  // Chart configuration with theme support
+  const chartOption = useMemo(() => {
+    const isDarkTheme = theme.pageBackground === '#1F2937' || theme.pageBackground?.includes('dark');
+
+    return {
+      title: {
+        text: 'Income Flow Analysis',
+        left: 'center',
+        top: '2%',
+        textStyle: {
+          color: theme.pageText,
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        triggerOn: 'mousemove',
+        backgroundColor: isDarkTheme ? '#374151' : '#FFFFFF',
+        borderColor: isDarkTheme ? '#6B7280' : '#E5E7EB',
+        borderWidth: 1,
+        borderRadius: 8,
+        textStyle: {
+          color: isDarkTheme ? '#F9FAFB' : '#1F2937',
+          fontSize: 12
+        },
+        padding: [8, 12],
+        formatter: function(params: any) {
+          if (params.dataType === 'edge') {
+            const percentage = ((params.data.value / 108660) * 100).toFixed(1);
+            return `
+              <div style="font-weight: bold; margin-bottom: 4px;">${params.data.source} → ${params.data.target}</div>
+              <div>Amount: ${formatCurrency(params.data.value)}</div>
+              <div>Percentage: ${percentage}%</div>
+            `;
+          } else {
+            return `
+              <div style="font-weight: bold; margin-bottom: 4px;">${params.name}</div>
+              <div>Category: ${params.data?.category || 'N/A'}</div>
+            `;
+          }
+        }
+      },
+      animation: true,
+      animationDuration: 1500,
+      animationEasing: 'cubicInOut',
+      series: [
+        {
+          type: 'sankey',
+          layout: 'none',
+          emphasis: {
+            focus: 'adjacency',
+            lineStyle: {
+              opacity: 0.9
+            }
+          },
+          blur: {
+            lineStyle: {
+              opacity: 0.1
+            },
+            label: {
+              opacity: 0.3
+            }
+          },
+          data: sankeyData.nodes.map(node => ({
+            name: node.name,
+            category: node.category,
+            itemStyle: {
+              color:
+                node.category === 'income' ? '#10B981' :
+                node.category === 'flow' ? '#6366F1' :
+                node.category === 'savings' ? '#8B5CF6' :
+                '#F59E0B',
+              borderColor: isDarkTheme ? '#374151' : '#E5E7EB',
+              borderWidth: 1
+            },
+            label: {
+              color: theme.pageText,
+              fontWeight: 'bold',
+              fontSize: 11,
+              formatter: function(params: any) {
+                return params.name.length > 12 ? params.name.slice(0, 12) + '...' : params.name;
+              }
+            }
+          })),
+          links: sankeyData.links.map(link => ({
+            ...link,
+            lineStyle: {
+              color: 'source',
+              opacity: 0.6,
+              curveness: 0.5
+            },
+            emphasis: {
+              lineStyle: {
+                opacity: 0.8,
+                width: 4
+              }
+            }
+          })),
+          lineStyle: {
+            curveness: 0.5
+          },
+          label: {
+            position: 'right',
+            formatter: '{b}',
+            color: theme.pageText,
+            fontSize: 11
+          },
+          left: '3%',
+          right: '3%',
+          top: '12%',
+          bottom: '8%',
+          nodeWidth: 20,
+          nodeGap: 8,
+          draggable: false,
+          focusNodeAdjacency: 'allEdges'
+        }
+      ],
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Export as PNG',
+            backgroundColor: theme.pageBackground,
+            pixelRatio: 2,
+            name: 'income-flow-analysis'
+          },
+          restore: {
+            show: true,
+            title: 'Reset View'
+          }
+        },
+        right: '3%',
+        top: '3%',
+        iconStyle: {
+          borderColor: theme.pageText,
+          color: 'transparent'
+        },
+        emphasis: {
+          iconStyle: {
+            borderColor: '#3B82F6',
+            color: '#3B82F6'
+          }
+        }
+      },
+      backgroundColor: 'transparent',
+      textStyle: {
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }
+    };
+  }, [sankeyData, theme, formatCurrency]);
+
+  // Export functionality
+  const handleExportChart = useCallback(() => {
+    if (chartRef.current) {
+      const chartInstance = chartRef.current.getEchartsInstance();
+      const dataURL = chartInstance.getDataURL({
+        type: 'png',
+        pixelRatio: 2,
+        backgroundColor: theme.pageBackground
+      });
+
+      const link = document.createElement('a');
+      link.download = 'income-flow-analysis.png';
+      link.href = dataURL;
+      link.click();
+    }
+  }, [theme.pageBackground]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -210,112 +382,97 @@ export function Home() {
         flex: 1,
         backgroundColor: theme.tableBackground,
         borderRadius: 12,
-        padding: 24,
-        minHeight: 400,
+        padding: 20,
+        minHeight: 450,
+        position: 'relative',
       }}>
+        {/* Chart Controls */}
+        <View style={{
+          position: 'absolute',
+          top: 16,
+          right: 16,
+          zIndex: 10,
+          flexDirection: 'row',
+          gap: 8,
+        }}>
+          <Button
+            variant="bare"
+            onPress={handleExportChart}
+            style={{
+              padding: 8,
+              borderRadius: 6,
+              backgroundColor: theme.buttonNormalBackground,
+              borderColor: theme.buttonNormalBorder,
+            }}
+          >
+            <Text style={{
+              fontSize: 11,
+              color: theme.buttonNormalText,
+              fontWeight: 'bold'
+            }}>
+              Export PNG
+            </Text>
+          </Button>
+        </View>
+
         <ReactECharts
-          option={{
-            title: {
-              text: 'Income Flow Analysis',
-              left: 'center',
-              textStyle: {
-                color: theme.pageText,
-                fontSize: 16,
-                fontWeight: 'bold'
-              }
-            },
-            tooltip: {
-              trigger: 'item',
-              triggerOn: 'mousemove',
-              backgroundColor: theme.tooltipBackground || '#1F2937',
-              borderColor: theme.tooltipBorder || '#374151',
-              textStyle: {
-                color: theme.tooltipText || '#F9FAFB'
-              },
-              formatter: function(params: any) {
-                if (params.dataType === 'edge') {
-                  return `${params.data.source} → ${params.data.target}<br/>Amount: ${formatCurrency(params.data.value)}`;
-                } else {
-                  return `${params.name}<br/>Total: ${formatCurrency(params.data.value || 0)}`;
-                }
-              }
-            },
-            animation: true,
-            animationDuration: 1000,
-            animationEasing: 'cubicOut',
-            series: [
-              {
-                type: 'sankey',
-                layout: 'none',
-                emphasis: {
-                  focus: 'adjacency'
-                },
-                data: sankeyData.nodes.map(node => ({
-                  name: node.name,
-                  itemStyle: {
-                    color:
-                      node.category === 'income' ? '#10B981' :
-                      node.category === 'flow' ? '#6366F1' :
-                      node.category === 'savings' ? '#8B5CF6' :
-                      '#F59E0B'
-                  },
-                  label: {
-                    color: theme.pageText,
-                    fontWeight: 'bold'
-                  }
-                })),
-                links: sankeyData.links.map(link => ({
-                  ...link,
-                  lineStyle: {
-                    color: 'source',
-                    opacity: 0.6,
-                    curveness: 0.5
-                  },
-                  emphasis: {
-                    lineStyle: {
-                      opacity: 0.8
-                    }
-                  }
-                })),
-                lineStyle: {
-                  curveness: 0.5
-                },
-                label: {
-                  position: 'right',
-                  formatter: '{b}',
-                  color: theme.pageText,
-                  fontSize: 11
-                },
-                left: '5%',
-                right: '5%',
-                top: '10%',
-                bottom: '10%',
-                nodeWidth: 20,
-                nodeGap: 12,
-                draggable: false
-              }
-            ],
-            toolbox: {
-              show: true,
-              feature: {
-                saveAsImage: {
-                  show: true,
-                  title: 'Export as PNG',
-                  backgroundColor: theme.pageBackground,
-                  pixelRatio: 2
-                }
-              },
-              right: '5%',
-              top: '5%',
-              iconStyle: {
-                borderColor: theme.pageText
-              }
-            },
-            backgroundColor: 'transparent'
+          ref={chartRef}
+          option={chartOption}
+          style={{
+            height: '100%',
+            width: '100%',
+            minHeight: 400
           }}
-          style={{ height: '100%', width: '100%' }}
-          opts={{ renderer: 'svg' }}
+          opts={{
+            renderer: 'svg',
+            width: 'auto',
+            height: 'auto'
+          }}
+          notMerge={true}
+          lazyUpdate={true}
         />
+
+        {/* Chart Legend */}
+        <View style={{
+          position: 'absolute',
+          bottom: 16,
+          left: 16,
+          flexDirection: 'row',
+          gap: 16,
+          backgroundColor: theme.pageBackground,
+          padding: 12,
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: theme.tableBorder,
+        }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={{
+              width: 12,
+              height: 12,
+              backgroundColor: '#10B981',
+              borderRadius: 2,
+            }} />
+            <Text style={{ fontSize: 11, color: theme.pageText }}>Income</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={{
+              width: 12,
+              height: 12,
+              backgroundColor: '#F59E0B',
+              borderRadius: 2,
+            }} />
+            <Text style={{ fontSize: 11, color: theme.pageText }}>Expenses</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={{
+              width: 12,
+              height: 12,
+              backgroundColor: '#8B5CF6',
+              borderRadius: 2,
+            }} />
+            <Text style={{ fontSize: 11, color: theme.pageText }}>Savings</Text>
+          </View>
+        </View>
       </View>
     </View>
   );
