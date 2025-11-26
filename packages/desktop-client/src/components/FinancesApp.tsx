@@ -16,6 +16,8 @@ import { CommandBar } from './CommandBar';
 import { GlobalKeys } from './GlobalKeys';
 import { ManageRulesPage } from './ManageRulesPage';
 import { Category } from './mobile/budget/Category';
+import { Home } from './Home';
+import { DemoHome } from './DemoHome';
 import { MobileNavTabs } from './mobile/MobileNavTabs';
 import { TransactionEdit } from './mobile/transactions/TransactionEdit';
 import { Notifications } from './Notifications';
@@ -43,7 +45,7 @@ import { useSelector, useDispatch } from '@desktop-client/redux';
 import { getIsOutdated, getLatestVersion } from '@desktop-client/util/versions';
 
 function NarrowNotSupported({
-  redirectTo = '/budget',
+  redirectTo = '/home',
   children,
 }: {
   redirectTo?: string;
@@ -59,7 +61,7 @@ function NarrowNotSupported({
   return isNarrowWidth ? null : children;
 }
 
-function WideNotSupported({ children, redirectTo = '/budget' }) {
+function WideNotSupported({ children, redirectTo = '/home' }) {
   const { isNarrowWidth } = useResponsive();
   const navigate = useNavigate();
   useEffect(() => {
@@ -228,7 +230,7 @@ export function FinancesApp() {
                   element={
                     accountsLoaded ? (
                       accounts.length > 0 ? (
-                        <Navigate to="/budget" replace />
+                        <Navigate to="/home" replace />
                       ) : (
                         // If there are no accounts, we want to redirect the user to
                         // the All Accounts screen which will prompt them to add an account
@@ -240,6 +242,15 @@ export function FinancesApp() {
                   }
                 />
 
+                <Route path="/home" element={<Home />} />
+                <Route
+                  path="/demo-home"
+                  element={
+                    <View style={{ height: '100%' }}>
+                      <DemoHome />
+                    </View>
+                  }
+                />
                 <Route path="/reports/*" element={<Reports />} />
 
                 <Route
@@ -321,12 +332,13 @@ export function FinancesApp() {
                     }
                   />
                 )}
-                {/* redirect all other traffic to the budget page */}
-                <Route path="/*" element={<Navigate to="/budget" replace />} />
+                {/* redirect all other traffic to the home page */}
+                <Route path="/*" element={<Navigate to="/home" replace />} />
               </Routes>
             </View>
 
             <Routes>
+              <Route path="/home" element={<MobileNavTabs />} />
               <Route path="/budget" element={<MobileNavTabs />} />
               <Route path="/accounts" element={<MobileNavTabs />} />
               <Route path="/settings" element={<MobileNavTabs />} />
